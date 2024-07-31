@@ -15,7 +15,8 @@ import numpy.typing as npt
 import cv2
 from OpenGL import GL
 from tqdm import tqdm
-
+from PIL import Image
+        
 from animated_drawings.controller.controller import Controller
 from animated_drawings.model.scene import Scene
 from animated_drawings.model.animated_drawing import AnimatedDrawing
@@ -174,7 +175,6 @@ class GIFWriter(VideoWriter):
 
     def cleanup(self) -> None:
         """ Write all frames to output path specified."""
-        from PIL import Image
         self.output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
         ims = [Image.fromarray(a_frame) for a_frame in self.frames]
