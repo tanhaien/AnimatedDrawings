@@ -9,9 +9,9 @@ import logging
 from typing import List, Dict, Set, Tuple
 import scipy.sparse.linalg as spla
 import scipy.sparse as sp
+import cupy as cp
 
-
-csr_matrix = sp._csr.csr_matrix  # for typing  # pyright: ignore[reportPrivateUsage]
+csr_matrix = sp.csr_matrix  # for typing
 
 
 class ARAP():
