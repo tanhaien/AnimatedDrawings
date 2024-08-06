@@ -18,7 +18,7 @@ from skimage import measure
 from shapely import geometry
 from OpenGL import GL
 
-from scipy.spatial import Delaunay
+from scipy.spatial import Delaunay, cKDTree
 from animated_drawings.model.transform import Transform
 from animated_drawings.model.time_manager import TimeManager
 from animated_drawings.model.retargeter import Retargeter
@@ -409,77 +409,38 @@ class AnimatedDrawing(Transform, TimeManager):
                 indices.append(self.joint_to_tri_v_idx.get(joint_name, np.array([], dtype=np.int32)))
         self.indices = np.hstack(indices)
 
-    def _initialize_joint_to_triangles_dict(self) -> None:  # noqa: C901
-        """
-        Uses BFS to find and return the closest joint bone (line segment between joint and parent) to each triangle centroid.
-        """
-        shortest_distance = np.full(self.mask.shape, 1 << 12, dtype=np.int32)  # to nearest joint
-        closest_joint_idx = np.full(self.mask.shape, -1, dtype=np.int8)  # track joint idx nearest each point
-
-        # temp dictionary to help with seed generation
-        joints_d: Dict[str, CharacterConfig.JointDict] = {}
-        for joint in self.char_cfg.skeleton:
-            joints_d[joint['name']] = joint
-            joints_d[joint['name']]['loc'][1] = 1 - joints_d[joint['name']]['loc'][1]
-
-        # store joint names and later reference by element location
-        joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg.skeleton]
-
-        # seed generation
-        heap: List[Tuple[float, Tuple[int, Tuple[int, int]]]] = []  # [(dist, (joint_idx, (x, y))]
-        for _, joint in joints_d.items():
-            if joint['parent'] is None:  # skip root joint
-                continue
-            joint_idx = joint_name_to_idx.index(joint['name'])
-            dist_joint_xy: List[float] = joint['loc']
-            prox_joint_xy: List[float] = joints_d[joint['parent']]['loc']
-            seeds_xy = (self.img_dim * np.linspace(dist_joint_xy, prox_joint_xy, num=20, endpoint=False)).round()
-            heap.extend([(0, (joint_idx, tuple(seed_xy.astype(np.int32)))) for seed_xy in seeds_xy])
-
-        # BFS search
-        start_time: float = time.time()
-        logging.info('Starting joint -> mask pixel BFS')
-        while heap:
-            distance, (joint_idx, (x, y)) = heapq.heappop(heap)
-            neighbors = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
-            n_dist = [1.414, 1.0, 1.414, 1.0, 1.0, 1.414, 1.0, 1.414]
-            for (n_x, n_y), n_dist in zip(neighbors, n_dist):
-                n_distance = distance + n_dist
-                if not 0 <= n_x < self.img_dim or not 0 <= n_y < self.img_dim:
-                    continue  # neighbor is outside image bounds- ignore
-
-                if not self.mask[n_x, n_y]:
-                    continue  # outside character mask
-
-                if shortest_distance[n_x, n_y] <= n_distance:
-                    continue  # a closer joint exists
-
-                closest_joint_idx[n_x, n_y] = joint_idx
-                shortest_distance[n_x, n_y] = n_distance
-                heapq.heappush(heap, (n_distance, (joint_idx, (n_x, n_y))))
-        logging.info(f'Finished joint -> mask pixel BFS in {time.time() - start_time} seconds')
-
-        # create map between joint name and triangle centroids it is closest to
-        joint_to_tri_v_idx_and_dist: DefaultDict[str, List[Tuple[npt.NDArray[np.int32], np.int32]]] = defaultdict(list)
+    def _initialize_joint_to_triangles_dict(self) -> None:
+        # Tạo danh sách các điểm joint
+        joint_points = []
+        joint_indices = []
+        for idx, joint in enumerate(self.char_cfg.skeleton):
+            if joint['parent'] is not None:
+                joint_points.append(joint['loc'])
+                joint_indices.append(idx)
+        
+        # Tạo KD-tree từ các điểm joint
+        tree = cKDTree(joint_points)
+        
+        # Tìm joint gần nhất cho mỗi pixel trong mask
+        pixel_coords = np.argwhere(self.mask)
+        distances, closest_joint_indices = tree.query(pixel_coords)
+        
+        # Tạo map giữa joint và các tam giác
+        joint_to_tri_v_idx: DefaultDict[str, List[npt.NDArray[np.int32]]] = defaultdict(list)
         for tri_v_idx in self.mesh['triangles']:
             tri_verts = np.array([self.mesh['vertices'][v_idx] for v_idx in tri_v_idx])
-            centroid_x, centroid_y = list((tri_verts.mean(axis=0) * self.img_dim).round().astype(np.int32))
-            tri_centroid_closest_joint_idx: np.int8 = closest_joint_idx[centroid_x, centroid_y]
-            dist_from_tri_centroid_to_bone: np.int32 = shortest_distance[centroid_x, centroid_y]
-            joint_to_tri_v_idx_and_dist[joint_name_to_idx[tri_centroid_closest_joint_idx]].append((tri_v_idx, dist_from_tri_centroid_to_bone))
-
-        joint_to_tri_v_idx: Dict[str, npt.NDArray[np.int32]] = {}
-        for key, val in joint_to_tri_v_idx_and_dist.items():
-            # sort by distance, descending
-            val.sort(key=lambda x: float(x[1]), reverse=True)
-
-            # retain vertex indices, remove distance info
-            val = [v[0] for v in val]
-
-            # convert to np array and save in dictionary
-            joint_to_tri_v_idx[key] = np.array(val).flatten()  # type: ignore
-
-        self.joint_to_tri_v_idx = joint_to_tri_v_idx
+            centroid = tri_verts.mean(axis=0)
+            centroid_pixel = (centroid * self.img_dim).astype(int)
+            
+            # Tìm điểm gần nhất trong pixel_coords
+            distances = np.sum((pixel_coords - centroid_pixel)**2, axis=1)
+            nearest_index = np.argmin(distances)
+            
+            joint_idx = closest_joint_indices[nearest_index]
+            joint_name = self.char_cfg.skeleton[joint_indices[joint_idx]]['name']
+            joint_to_tri_v_idx[joint_name].append(tri_v_idx)
+        
+        self.joint_to_tri_v_idx = {k: np.array(v).flatten() for k, v in joint_to_tri_v_idx.items()}
 
     def _load_mask(self) -> npt.NDArray[np.uint8]:
         """ Load and perform preprocessing upon the mask """
