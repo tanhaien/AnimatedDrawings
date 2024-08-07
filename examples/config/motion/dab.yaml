@@ -9,3 +9,4 @@ forward_perp_joint_vectors:
     - RightUpLeg
 scale: 0.025
 up: +z
+frame_reduction_factor: 2
