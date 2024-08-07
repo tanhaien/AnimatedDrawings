@@ -168,41 +168,31 @@ class ARAP():
         np.seterr(**old_settings)
 
     def solve(self, pins_xy_: npt.NDArray[np.float32]) -> npt.NDArray[np.float64]:
-        """
-        After ARAP has been initialized, pass in new pin xy positions and receive back the new mesh vertex positions
-        pins *must* be in the same order they were passed in during initialization
-
-        pins_xy: ndarray [N, 2] with new pin xy positions
-        return: ndarray [N, 2], the updated xy locations of each vertex in the mesh
-        """
-
-        # remove any pins that were orgininally outside the mesh
-        pins_xy: npt.NDArray[np.float32] = pins_xy_[self.pin_mask]  # pyright: ignore[reportGeneralTypeIssues]
-
+        pins_xy = pins_xy_[self.pin_mask]
         assert len(pins_xy) == self.pin_num
 
-        self.b1: npt.NDArray[np.float64] = np.hstack([np.zeros([2 * self.edge_num], dtype=np.float64), self.w * pins_xy.reshape([-1, ])])
-        v1: npt.NDArray[np.float64] = spla.spsolve(self.tA1xA1, self.tA1 @ self.b1.T)
+        self.b1 = np.concatenate([np.zeros(2 * self.edge_num, dtype=np.float64), (self.w * pins_xy).ravel()])
+        v1 = spla.spsolve(self.tA1xA1, self.tA1 @ self.b1)
 
-        T1: npt.NDArray[np.float64] = self.G @ v1
-        b2_top = np.empty([self.edge_num, 2], dtype=np.float64)
-        for idx, e0 in enumerate(self.edge_vectors):
-            c: np.float64 = T1[2*idx]
-            s: np.float64 = T1[2*idx + 1]
-            scale = 1.0 / np.sqrt(c * c + s * s)
-            c *= scale
-            s *= scale
-            T2 = np.asarray(((c, s), (-s, c)))  # create rotation matrix
-            e1 = np.dot(T2, e0)                 # and rotate old vector to get new
-            b2_top[idx] = e1
+        T1 = self.G @ v1
+        b2_top = np.empty((self.edge_num, 2), dtype=np.float64)
+        
+        c = T1[::2]
+        s = T1[1::2]
+        scale = 1.0 / np.sqrt(c * c + s * s)
+        c *= scale
+        s *= scale
+        
+        T2 = np.array([[c, s], [-s, c]]).transpose(2, 0, 1)
+        b2_top = np.einsum('ijk,ik->ij', T2, self.edge_vectors)
+        
         b2 = np.vstack([b2_top, self.w * pins_xy])
-        b2x = b2[:, 0]
-        b2y = b2[:, 1]
+        b2x, b2y = b2[:, 0], b2[:, 1]
 
-        v2x: npt.NDArray[np.float64] = spla.spsolve(self.tA2xA2, self.tA2 @ b2x)
-        v2y: npt.NDArray[np.float64] = spla.spsolve(self.tA2xA2, self.tA2 @ b2y)
+        v2x = spla.spsolve(self.tA2xA2, self.tA2 @ b2x)
+        v2y = spla.spsolve(self.tA2xA2, self.tA2 @ b2y)
 
-        return np.vstack((v2x, v2y)).T
+        return np.column_stack((v2x, v2y))
 
     def _xy_to_barycentric_coords(self,
                                   points: npt.NDArray[np.float32],
