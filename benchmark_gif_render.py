@@ -18,7 +18,7 @@ def benchmark_gif_render():
     end_time = time.time()
     
     # In thông số tổng quát
-    print(f"Tổng thời gian render: {end_time - start_time:.2f} giây")
+    print(f"Render time: {end_time - start_time:.2f} seconds")
     
  #     Xử lý và in kết quả chi tiết từ cProfile
     # s = io.StringIO()
