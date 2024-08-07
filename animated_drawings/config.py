@@ -418,6 +418,16 @@ class MotionConfig():
             logging.critical(msg)
             assert False, msg
 
+        # validate frame_reduction_factor
+        try:
+            self.frame_reduction_factor: int = motion_cfg.get('frame_reduction_factor', 1)
+            assert isinstance(self.frame_reduction_factor, int), 'frame_reduction_factor must be an integer'
+            assert self.frame_reduction_factor > 0, 'frame_reduction_factor must be greater than 0'
+        except (AssertionError, ValueError) as e:
+            msg = f'Error validating frame_reduction_factor: {e}'
+            logging.critical(msg)
+            assert False, msg
+
     def validate_bvh(self, bvh_joint_names: List[str]) -> None:
         """ Performs all the validation steps that depend upon knowing the BVH joint names. This should be called once the BVH had been loaded."""
         try:
