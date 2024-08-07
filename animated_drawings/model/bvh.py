@@ -127,7 +127,7 @@ class BVH(Transform, TimeManager):
         return Vectors(vectors_cw_perpendicular_to_fwd).average().perpendicular()
 
     @classmethod
-    def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None) -> BVH:
+    def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None, frame_reduction_factor: int = 1) -> BVH:
         """ Given a path to a .bvh, constructs and returns BVH object"""
 
         # search for the BVH file specified
@@ -161,19 +161,21 @@ class BVH(Transform, TimeManager):
             logging.critical(msg)
             assert False, msg
 
+        # Reduce number of frames
+        frames = frames[::frame_reduction_factor]
+        frame_max_num = len(frames)
+        frame_time *= frame_reduction_factor
+
         # Split logically distinct root position data from joint euler angle rotation data
         pos_data: npt.NDArray[np.float32]
         rot_data: npt.NDArray[np.float32]
         pos_data, rot_data = BVH._process_frame_data(root_joint, frames)
 
-        # Set end_frame if not passed in
-        if not end_frame_idx:
-            end_frame_idx = frame_max_num
-
-        # Ensure end_frame_idx <= frame_max_num
-        if frame_max_num < end_frame_idx:
-            msg = f'config specified end_frame_idx > bvh frame_max_num ({end_frame_idx} > {frame_max_num}). Replacing with frame_max_num.'
-            logging.warning(msg)
+        # Adjust start and end frame indices
+        start_frame_idx = start_frame_idx // frame_reduction_factor
+        if end_frame_idx:
+            end_frame_idx = min(end_frame_idx // frame_reduction_factor, frame_max_num)
+        else:
             end_frame_idx = frame_max_num
 
         # slice position and rotation data using start and end frame indices
