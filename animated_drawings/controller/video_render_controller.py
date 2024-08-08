@@ -161,10 +161,10 @@ class GIFWriter(VideoWriter):
         self.output_p = Path(controller.cfg.output_video_path)
 
         self.duration = int(controller.delta_t*1000)
-        if self.duration < 20:
-            msg = f'Specified duration of .gif is too low, replacing with 20: {self.duration}'
-            logging.warn(msg)
-            self.duration = 20
+        # if self.duration < 20:
+        #     msg = f'Specified duration of .gif is too low, replacing with 20: {self.duration}'
+        #     logging.warn(msg)
+        #     self.duration = 20
 
         self.frames: List[npt.NDArray[np.uint8]] = []
 
