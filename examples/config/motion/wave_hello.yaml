@@ -1,5 +1,5 @@
 filepath: examples/bvh/fair1/wave_hello.bvh
-start_frame_idx: 0
+start_frame_idx: 1
 end_frame_idx: 839 
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
@@ -9,4 +9,4 @@ forward_perp_joint_vectors:
     - RightUpLeg
 scale: 0.025
 up: +z
-frame_reduction_factor: 4
+frame_reduction_factor: 8
