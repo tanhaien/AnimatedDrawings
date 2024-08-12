@@ -5,7 +5,7 @@
 from __future__ import annotations  # so we can refer to class Type inside class
 import logging
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -127,7 +127,7 @@ class BVH(Transform, TimeManager):
         return Vectors(vectors_cw_perpendicular_to_fwd).average().perpendicular()
 
     @classmethod
-    def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None, frame_reduction_factor: int = 1) -> BVH:
+    def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None, frame_reduction_factor: Union[int, str] = 1) -> BVH:
         """ Given a path to a .bvh, constructs and returns BVH object"""
 
         # search for the BVH file specified
@@ -154,6 +154,14 @@ class BVH(Transform, TimeManager):
         frame_max_num = int(lines.pop(0).split(':')[-1])
         frame_time = float(lines.pop(0).split(':')[-1])
 
+        # Tính toán FPS hiện tại
+        current_fps = 1 / frame_time
+        target_fps = 10
+
+        # Tính toán frame_reduction_factor tự động nếu được chỉ định
+        if frame_reduction_factor == 'auto' or isinstance(frame_reduction_factor, str):
+            frame_reduction_factor = max(1, round(current_fps / target_fps))
+        
         # Parse motion data
         frames = [list(map(float, line.strip().split(' '))) for line in lines]
         if len(frames) != frame_max_num:
@@ -164,7 +172,9 @@ class BVH(Transform, TimeManager):
         # Reduce number of frames
         frames = frames[::frame_reduction_factor]
         frame_max_num = len(frames)
-        frame_time *= frame_reduction_factor
+        
+        # Điều chỉnh frame_time để đạt được target_fps
+        frame_time = 1 / target_fps
 
         # Split logically distinct root position data from joint euler angle rotation data
         pos_data: npt.NDArray[np.float32]
@@ -184,6 +194,8 @@ class BVH(Transform, TimeManager):
 
         # new frame_max_num based is end_frame_idx minus start_frame_idx
         frame_max_num = end_frame_idx - start_frame_idx
+
+        logging.info(f"Original FPS: {current_fps:.2f}, New FPS: {target_fps:.2f}, Frame reduction factor: {frame_reduction_factor}")
 
         return BVH(bvh_p.name, root_joint, frame_max_num, frame_time, pos_data, rot_data)
 

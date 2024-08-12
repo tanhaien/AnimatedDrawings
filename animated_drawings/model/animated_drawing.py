@@ -27,6 +27,7 @@ from animated_drawings.model.joint import Joint
 from animated_drawings.model.quaternions import Quaternions
 from animated_drawings.model.vectors import Vectors
 from animated_drawings.config import CharacterConfig, MotionConfig, RetargetConfig
+from animated_drawings.model.bvh import BVH
 
 
 class AnimatedDrawingMesh(TypedDict):
@@ -318,7 +319,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # validate the motion and retarget config files, now that we know char/bvh joint names
         char_joint_names: List[str] = self.rig.root_joint.get_chain_joint_names()
-        bvh_joint_names = self.retargeter.bvh_joint_names
+        bvh_joint_names = self.retargeter.bvh.root_joint.get_chain_joint_names()
         motion_cfg.validate_bvh(bvh_joint_names)
         retarget_cfg.validate_char_and_bvh_joint_names(char_joint_names, bvh_joint_names)
 
