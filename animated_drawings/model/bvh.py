@@ -156,7 +156,7 @@ class BVH(Transform, TimeManager):
 
         # Tính toán FPS hiện tại
         current_fps = 1 / frame_time
-        target_fps = 10
+        target_fps = 15
 
         # Tính toán frame_reduction_factor tự động nếu được chỉ định
         if frame_reduction_factor == 'auto' or isinstance(frame_reduction_factor, str):
