@@ -9,4 +9,4 @@ forward_perp_joint_vectors:
     - RightHip
 scale: 0.025
 up: +y
-frame_reduction_factor: auto
+# frame_reduction_factor: auto

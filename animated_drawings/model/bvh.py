@@ -127,7 +127,7 @@ class BVH(Transform, TimeManager):
         return Vectors(vectors_cw_perpendicular_to_fwd).average().perpendicular()
 
     @classmethod
-    def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None, frame_reduction_factor: Union[int, str] = 1) -> BVH:
+    def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None, frame_reduction_factor: Union[int, str] = 'auto') -> BVH:
         """ Given a path to a .bvh, constructs and returns BVH object"""
 
         # search for the BVH file specified
@@ -158,7 +158,7 @@ class BVH(Transform, TimeManager):
         current_fps = 1 / frame_time
         target_fps = 15
 
-        # Tính toán frame_reduction_factor tự động nếu được chỉ định
+        # Tính toán frame_reduction_factor tự động nếu được chỉ định hoặc mặc định
         if frame_reduction_factor == 'auto' or isinstance(frame_reduction_factor, str):
             frame_reduction_factor = max(1, round(current_fps / target_fps))
         

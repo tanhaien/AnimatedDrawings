@@ -420,8 +420,7 @@ class MotionConfig():
 
         # validate frame_reduction_factor
         try:
-            self.frame_reduction_factor = motion_cfg.get('frame_reduction_factor', 1)
-            assert isinstance(self.frame_reduction_factor, (int, str)), 'frame_reduction_factor must be an integer or "auto"'
+            self.frame_reduction_factor = motion_cfg.get('frame_reduction_factor', 'auto')
             if isinstance(self.frame_reduction_factor, int):
                 assert self.frame_reduction_factor > 0, 'frame_reduction_factor must be greater than 0'
             elif isinstance(self.frame_reduction_factor, str):
