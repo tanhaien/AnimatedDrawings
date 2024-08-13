@@ -31,7 +31,7 @@ class Retargeter():
 
         # instantiate the bvh
         try:
-            self.bvh = BVH.from_file(str(motion_cfg.bvh_p), motion_cfg.start_frame_idx, motion_cfg.end_frame_idx, motion_cfg.frame_reduction_factor)
+            self.bvh = BVH.from_file(str(motion_cfg.bvh_p), motion_cfg.start_frame_idx, motion_cfg.end_frame_idx)
         except Exception as e:
             msg = f'Error loading BVH: {e}'
             logging.critical(msg)
