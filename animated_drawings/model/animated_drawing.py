@@ -10,6 +10,7 @@ import time
 from typing import Dict, List, Tuple, Optional, TypedDict, DefaultDict
 from collections import defaultdict
 from pathlib import Path
+import pickle
 
 import cv2
 import numpy as np
@@ -29,6 +30,18 @@ from animated_drawings.model.vectors import Vectors
 from animated_drawings.config import CharacterConfig, MotionConfig, RetargetConfig
 from animated_drawings.model.bvh import BVH
 
+import pickle
+from pathlib import Path
+
+def save_cache(data, filename):
+    with open(filename, 'wb') as f:
+        pickle.dump(data, f)
+
+def load_cache(filename):
+    if Path(filename).exists():
+        with open(filename, 'rb') as f:
+            return pickle.load(f)
+    return None
 
 class AnimatedDrawingMesh(TypedDict):
     vertices: npt.NDArray[np.float32]
@@ -226,9 +239,7 @@ class AnimatedDrawing(Transform, TimeManager):
         super().__init__()
 
         self.char_cfg: CharacterConfig = char_cfg
-
         self.retarget_cfg: RetargetConfig = retarget_cfg
-
         self.img_dim: int = self.char_cfg.img_dim
 
         # load mask and pad to square
@@ -238,8 +249,11 @@ class AnimatedDrawing(Transform, TimeManager):
         self.txtr: npt.NDArray[np.uint8] = self._load_txtr()
 
         # generate the mesh
-        self.mesh: AnimatedDrawingMesh
-        self._generate_mesh()
+        cache_filename = "mesh_cache.pkl"
+        self.mesh: AnimatedDrawingMesh = load_cache(cache_filename)
+        if self.mesh is None:
+            self._generate_mesh()
+            save_cache(self.mesh, cache_filename)
 
         self.rig = AnimatedDrawingRig(self.char_cfg)
         self.add_child(self.rig)
@@ -247,16 +261,22 @@ class AnimatedDrawing(Transform, TimeManager):
         # perform runtime checks for character pose, modify retarget config accordingly
         self._modify_retargeting_cfg_for_character()
 
-        self.joint_to_tri_v_idx:  Dict[str, npt.NDArray[np.int32]]
+        self.joint_to_tri_v_idx: Dict[str, npt.NDArray[np.int32]]
         self._initialize_joint_to_triangles_dict()
 
         self.indices: npt.NDArray[np.int32] = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
 
+        # initialize retargeter
         self.retargeter: Retargeter
         self._initialize_retargeter_bvh(motion_cfg, retarget_cfg)
 
         # initialize arap solver with original joint positions
-        self.arap = ARAP(self.rig.get_joints_2D_positions(), self.mesh['triangles'], self.mesh['vertices'])
+        arap_cache_filename = "arap_cache.pkl"
+        self.arap = load_cache(arap_cache_filename)
+        if self.arap is None:
+            self.arap = ARAP(self.rig.get_joints_2D_positions(), self.mesh['triangles'], self.mesh['vertices'])
+            save_cache(self.arap, arap_cache_filename)
+
 
         self.vertices: npt.NDArray[np.float32]
         self._initialize_vertices()
