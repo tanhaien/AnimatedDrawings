@@ -17,7 +17,7 @@ from animated_drawings.model.vectors import Vectors
 from animated_drawings.model.joint import Joint
 from animated_drawings.model.time_manager import TimeManager
 from animated_drawings.utils import resolve_ad_filepath
-
+from animated_drawings.config import Config
 
 class BVH_Joint(Joint):
     """
@@ -161,10 +161,22 @@ class BVH(Transform, TimeManager):
             logging.critical(msg)
             assert False, msg
 
+        if frame_reduction_factor == 'auto':
+            # Tính fps hiện tại
+            current_fps = 1 / frame_time
+
+            # Tính reduce frame factor
+            frame_reduction_factor = max(1, int(current_fps / Config.FPS_TARGET))
+        else:
+            frame_reduction_factor = max(1, int(frame_reduction_factor))
+
         # Reduce number of frames
         frames = frames[::frame_reduction_factor]
         frame_max_num = len(frames)
-        frame_time *= frame_reduction_factor
+        
+        #frame_time *= frame_reduction_factor
+        frame_time = frame_time # giữ nguyên để nội suy bù lại fps
+        print(frame_time)
 
         # Split logically distinct root position data from joint euler angle rotation data
         pos_data: npt.NDArray[np.float32]

@@ -160,7 +160,7 @@ class GIFWriter(VideoWriter):
         assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
         self.output_p = Path(controller.cfg.output_video_path)
 
-        self.duration = int(controller.delta_t*1000)
+        self.duration = int(controller.delta_t * 1000)  # Không nhân 2 nữa
         if self.duration < 20:
             msg = f'Specified duration of .gif is too low, replacing with 20: {self.duration}'
             logging.warn(msg)
@@ -172,12 +172,23 @@ class GIFWriter(VideoWriter):
         """ Reorder channels and save frames as they arrive"""
         self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA).astype(np.uint8))
 
+    def interpolate_frame(self, frame1: npt.NDArray[np.uint8], frame2: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
+        """ Interpolate between two frames """
+        return ((frame1.astype(np.float32) + frame2.astype(np.float32)) / 2).astype(np.uint8)
+
     def cleanup(self) -> None:
         """ Write all frames to output path specified."""
-        from PIL import Image
         self.output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
-        ims = [Image.fromarray(a_frame) for a_frame in self.frames]
+        
+        interpolated_frames = []
+        for i in range(len(self.frames) - 1):
+            interpolated_frames.append(self.frames[i])
+            interpolated_frames.append(self.interpolate_frame(self.frames[i], self.frames[i+1]))
+        interpolated_frames.append(self.frames[-1])  # Add the last frame
+        
+        from PIL import Image
+        ims = [Image.fromarray(a_frame) for a_frame in interpolated_frames]
         ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
 
 

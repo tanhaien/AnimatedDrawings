@@ -13,7 +13,7 @@ from animated_drawings.utils import resolve_ad_filepath
 
 
 class Config():
-
+    FPS_TARGET = 15  # Fps mục tiêu
     def __init__(self, user_mvc_cfg_fn: str) -> None:
         # get the base mvc config
         with open(resource_filename(__name__, "mvc_base_cfg.yaml"), 'r') as f:
@@ -56,6 +56,8 @@ class Config():
                 msg = f'Config error: {e}'
                 logging.critical(msg)
                 assert False, msg
+
+        FPS_TARGET = 30  # Fps mục tiêu
 
 
 class SceneConfig():
@@ -420,9 +422,13 @@ class MotionConfig():
 
         # validate frame_reduction_factor
         try:
-            self.frame_reduction_factor: int = motion_cfg.get('frame_reduction_factor', 1)
-            assert isinstance(self.frame_reduction_factor, int), 'frame_reduction_factor must be an integer'
-            assert self.frame_reduction_factor > 0, 'frame_reduction_factor must be greater than 0'
+            self.frame_reduction_factor: int = motion_cfg.get('frame_reduction_factor', None)
+            if self.frame_reduction_factor is None:
+                self.frame_reduction_factor = 'auto'  # Sử dụng 'auto' khi không có giá trị được chỉ định
+            elif isinstance(self.frame_reduction_factor, int):
+                assert self.frame_reduction_factor > 0, 'frame_reduction_factor must be greater than 0'
+            else:
+                raise ValueError('frame_reduction_factor must be an integer or None')
         except (AssertionError, ValueError) as e:
             msg = f'Error validating frame_reduction_factor: {e}'
             logging.critical(msg)
