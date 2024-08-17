@@ -26,5 +26,25 @@ def benchmark_gif_render():
     # ps.print_stats(1000)  # In top 20 hàm tốn nhiều thời gian nhất
     # print(s.getvalue())
 
+
+from PIL import Image
+
+def count_gif_frames(gif_path):
+    with Image.open(gif_path) as img:
+        frames = 0
+        try:
+            while True:
+                frames += 1
+                img.seek(img.tell() + 1)
+        except EOFError:
+            pass
+    return frames
+
+
+
 if __name__ == "__main__":
     benchmark_gif_render()
+    # Sử dụng hàm
+    gif_path = "./video.gif"
+    frame_count = count_gif_frames(gif_path)
+    print(f"Số frame trong GIF: {frame_count}")
