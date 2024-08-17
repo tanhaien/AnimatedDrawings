@@ -161,22 +161,17 @@ class BVH(Transform, TimeManager):
             logging.critical(msg)
             assert False, msg
 
-        if frame_reduction_factor == 'auto':
-            # Tính fps hiện tại
-            current_fps = 1 / frame_time
+        original_fps = 1 / frame_time
+        print(f"Original motion FPS: {original_fps:.2f}")
 
-            # Tính reduce frame factor
-            frame_reduction_factor = max(1, int(current_fps / Config.FPS_TARGET))
+        if frame_reduction_factor == 'auto':
+            frame_reduction_factor = max(1, int(original_fps / Config.FPS_TARGET))
         else:
             frame_reduction_factor = max(1, int(frame_reduction_factor))
 
         # Reduce number of frames
         frames = frames[::frame_reduction_factor]
         frame_max_num = len(frames)
-        
-        #frame_time *= frame_reduction_factor
-        frame_time = frame_time # giữ nguyên để nội suy bù lại fps
-        print(frame_time)
 
         # Split logically distinct root position data from joint euler angle rotation data
         pos_data: npt.NDArray[np.float32]
