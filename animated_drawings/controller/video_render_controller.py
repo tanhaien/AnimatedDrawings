@@ -15,6 +15,8 @@ import numpy.typing as npt
 import cv2
 from OpenGL import GL
 from tqdm import tqdm
+import concurrent.futures
+from PIL import Image
 
 from animated_drawings.controller.controller import Controller
 from animated_drawings.model.scene import Scene
@@ -73,6 +75,7 @@ class VideoRenderController(Controller):
 
         self.frames_left_to_render = max_frames
         self.delta_t = frame_time[0]
+        print(f"Total frames to render: {self.frames_left_to_render}")
 
     def _prep_for_run_loop(self) -> None:
         self.run_loop_start_time = time.time()
@@ -141,6 +144,7 @@ class VideoWriter():
 
         msg = f' Writing video to: {output_p.resolve()}'
         logging.info(msg)
+        print(msg)
 
         if output_p.suffix == '.gif':
             return GIFWriter(controller)
@@ -159,7 +163,7 @@ class GIFWriter(VideoWriter):
         assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
         self.output_p = Path(controller.cfg.output_video_path)
 
-        self.duration = int(controller.delta_t * 1000)  # Không nhân 2 nữa
+        self.duration = int(controller.delta_t * 1000)
         if self.duration < 20:
             msg = f'Specified duration of .gif is too low, replacing with 20: {self.duration}'
             logging.warn(msg)
@@ -175,19 +179,31 @@ class GIFWriter(VideoWriter):
         """ Interpolate between two frames """
         return ((frame1.astype(np.float32) + frame2.astype(np.float32)) / 2).astype(np.uint8)
 
+    def interpolate_frames_parallel(self, frames):
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            interpolated_frames = list(executor.map(self.interpolate_frame, frames[:-1], frames[1:]))
+        return interpolated_frames
+
     def cleanup(self) -> None:
         """ Write all frames to output path specified."""
         self.output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
         
-        interpolated_frames = []
-        for i in range(len(self.frames) - 1):
-            interpolated_frames.append(self.frames[i])
-            interpolated_frames.append(self.interpolate_frame(self.frames[i], self.frames[i+1]))
-        interpolated_frames.append(self.frames[-1])  # Add the last frame
+        # Interpolate frames in parallel
+        interpolated_frames = self.interpolate_frames_parallel(self.frames)
         
-        from PIL import Image
-        ims = [Image.fromarray(a_frame) for a_frame in interpolated_frames]
+        # Interleave original and interpolated frames
+        final_frames = []
+        for i in range(len(self.frames) - 1):
+            final_frames.append(self.frames[i])
+            final_frames.append(interpolated_frames[i])
+        final_frames.append(self.frames[-1])  # Add the last frame
+        
+        # Convert to PIL Images in parallel
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            ims = list(executor.map(Image.fromarray, final_frames))
+        
+        # Save GIF
         ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
 
 

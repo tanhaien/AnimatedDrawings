@@ -9,6 +9,7 @@ import logging
 from typing import List, Dict, Set, Tuple
 import scipy.sparse.linalg as spla
 import scipy.sparse as sp
+import concurrent.futures
 
 
 csr_matrix = sp._csr.csr_matrix  # for typing  # pyright: ignore[reportPrivateUsage]
@@ -167,7 +168,7 @@ class ARAP():
         # revert np overflow warnings behavior
         np.seterr(**old_settings)
 
-    def solve(self, pins_xy_: npt.NDArray[np.float32]) -> npt.NDArray[np.float64]:
+    def solve(self, pins_xy_: npt.NDArray[np.float32], max_workers: int = 6) -> npt.NDArray[np.float64]:
         pins_xy = pins_xy_[self.pin_mask]
         assert len(pins_xy) == self.pin_num
 
@@ -189,8 +190,12 @@ class ARAP():
         b2 = np.vstack([b2_top, self.w * pins_xy])
         b2x, b2y = b2[:, 0], b2[:, 1]
 
-        v2x = spla.spsolve(self.tA2xA2, self.tA2 @ b2x)
-        v2y = spla.spsolve(self.tA2xA2, self.tA2 @ b2y)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_x = executor.submit(spla.spsolve, self.tA2xA2, self.tA2 @ b2x)
+            future_y = executor.submit(spla.spsolve, self.tA2xA2, self.tA2 @ b2y)
+            
+            v2x = future_x.result()
+            v2y = future_y.result()
 
         return np.column_stack((v2x, v2y))
 
