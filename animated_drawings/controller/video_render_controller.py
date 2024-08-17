@@ -141,7 +141,6 @@ class VideoWriter():
 
         msg = f' Writing video to: {output_p.resolve()}'
         logging.info(msg)
-        print(msg)
 
         if output_p.suffix == '.gif':
             return GIFWriter(controller)

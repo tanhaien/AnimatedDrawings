@@ -57,8 +57,6 @@ class Config():
                 logging.critical(msg)
                 assert False, msg
 
-        FPS_TARGET = 30  # Fps mục tiêu
-
 
 class SceneConfig():
 
