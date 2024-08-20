@@ -255,6 +255,8 @@ class CharacterConfig():
 
     def __init__(self, char_cfg_fn: str) -> None:  # noqa: C901
         character_cfg_p = resolve_ad_filepath(char_cfg_fn, 'character cfg')
+        self.config_path = character_cfg_p
+
         with open(str(character_cfg_p), 'r') as f:
             char_cfg = yaml.load(f, Loader=yaml.FullLoader)
 

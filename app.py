@@ -1,0 +1,150 @@
+import io
+import logging
+from pathlib import Path
+from flask import Flask, request, jsonify, render_template
+import os
+import uuid
+import cv2
+import numpy as np
+import requests
+import json
+import yaml
+import base64
+from pkg_resources import resource_filename
+from examples.image_to_annotations import image_to_annotations
+from examples.annotations_to_animation import annotations_to_animation
+import time
+from flask_socketio import SocketIO, emit
+import animated_drawings.render
+import hashlib
+from werkzeug.utils import secure_filename
+import multiprocessing
+
+app = Flask(__name__)
+socketio = SocketIO(app)
+app.logger.setLevel(logging.DEBUG)
+
+UPLOAD_FOLDER = 'uploads'
+OUTPUT_FOLDER = 'outputs'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+CPU_LIMIT = multiprocessing.cpu_count()
+
+def set_cpu_limit(limit):
+    global CPU_LIMIT
+    CPU_LIMIT = min(limit, multiprocessing.cpu_count())
+    os.environ["OMP_NUM_THREADS"] = str(CPU_LIMIT)
+    os.environ["MKL_NUM_THREADS"] = str(CPU_LIMIT)
+
+def get_file_hash(file):
+    hasher = hashlib.md5()
+    for chunk in iter(lambda: file.read(4096), b""):
+        hasher.update(chunk)
+    file.seek(0)  # Reset file pointer
+    return hasher.hexdigest()
+
+@app.route('/')
+def index():
+    motions = get_available_motions()
+    return render_template('upload.html', motions=motions)
+
+@app.route('/cpu_info')
+def cpu_info():
+    return jsonify({
+        'cpu_limit': CPU_LIMIT,
+        'max_cpu': multiprocessing.cpu_count()
+    })
+
+@app.route('/set_cpu_limit', methods=['POST'])
+def set_cpu_limit_route():
+    limit = request.json.get('limit', 1)
+    set_cpu_limit(limit)
+    return jsonify({'message': f'CPU limit set to {CPU_LIMIT}'})
+
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part in the request'}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+        return jsonify({'error': 'Only image files (PNG, JPG, JPEG, GIF) are allowed'}), 400
+    
+    try:
+        file_hash = get_file_hash(file)
+        filename = secure_filename(file_hash + os.path.splitext(file.filename)[1])
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        char_anno_dir = os.path.join(OUTPUT_FOLDER, file_hash)
+        
+        if not os.path.exists(char_anno_dir):
+            os.makedirs(char_anno_dir, exist_ok=True)
+            file.save(file_path)
+            image_to_annotations(file_path, char_anno_dir)
+        
+        return jsonify({
+            'message': 'Image successfully uploaded and processed',
+            'file_hash': file_hash
+        })
+    except Exception as e:
+        app.logger.error(f"Error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/create_animation', methods=['POST'])
+def create_animation():
+    file_hash = request.form.get('file_hash')
+    motion = request.form.get('motion', 'examples/config/motion/dab.yaml')
+    
+    if not file_hash:
+        return jsonify({'error': 'File information not found'}), 400
+    
+    try:
+        char_anno_dir = os.path.join(OUTPUT_FOLDER, file_hash)
+        if not os.path.exists(char_anno_dir):
+            return jsonify({'error': 'Image data not found'}), 404
+        
+        socketio.emit('progress', {'step': 'Starting animation creation...', 'percentage': 40})
+        retarget_cfg_fn = resource_filename(__name__, 'examples/config/retarget/fair1_ppf.yaml')
+        start_time = time.time()
+        annotations_to_animation(char_anno_dir, motion, retarget_cfg_fn)
+        end_time = time.time()
+        render_time = round(end_time - start_time, 2)
+        
+        socketio.emit('progress', {'step': 'Finishing animation creation...', 'percentage': 90})
+        
+        output_gif_path = os.path.join(char_anno_dir, 'video.gif')
+        if not os.path.exists(output_gif_path):
+            return jsonify({'error': 'Output GIF file not found'}), 404
+        
+        with open(output_gif_path, 'rb') as gif_file:
+            gif_base64 = base64.b64encode(gif_file.read()).decode('ascii')
+        
+        socketio.emit('progress', {'step': 'Completion. Please wait...', 'percentage': 100})
+        
+        return jsonify({
+            'gif': gif_base64,
+            'message': 'GIF successfully created',
+            'render_time': render_time
+        })
+    except Exception as e:
+        app.logger.error(f"Error: {str(e)}")
+        socketio.emit('progress', {'step': 'Processing error', 'percentage': 100, 'error': str(e)})
+        return jsonify({'error': str(e)}), 500
+
+def get_available_motions():
+    motion_dir = resource_filename(__name__, 'examples/config/motion')
+    motions = [f for f in os.listdir(motion_dir) if f.endswith('.yaml')]
+    # Sắp xếp danh sách motion theo thứ tự abc
+    motions.sort()
+    return motions
+
+if __name__ == '__main__':
+    log_dir = Path('./logs')
+    log_dir.mkdir(exist_ok=True, parents=True)
+    logging.basicConfig(filename=f'{log_dir}/log.txt', level=logging.DEBUG)
+    
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
