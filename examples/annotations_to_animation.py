@@ -29,6 +29,9 @@ def annotations_to_animation(char_anno_dir: str, motion_cfg_fn: str, retarget_cf
         'controller': {
             'MODE': 'video_render',  # 'video_render' or 'interactive'
             'OUTPUT_VIDEO_PATH': str(Path(char_anno_dir, 'video.gif').resolve())}  # set the output location
+        ,'view': {
+            'USE_MESA': True
+        },
     }
 
     # write the new mvc config file out

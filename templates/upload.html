@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo hoạt ảnh từ hình ảnh</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Tạo hoạt ảnh từ hình ảnh</h1>
+    <form id="uploadForm">
+        <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif" required>
+        <select name="motion">
+            <option value="examples/config/motion/dab.yaml">Dab</option>
+            <!-- Thêm các tùy chọn chuyển động khác nếu cần -->
+        </select>
+        <button type="submit">Tải lên và tạo hoạt ảnh</button>
+    </form>
+    <div id="progressBar" style="display: none;">
+        <progress value="0" max="100"></progress>
+        <span id="progressStatus"></span>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const socket = io();
+        const form = document.getElementById('uploadForm');
+        const progressBar = document.getElementById('progressBar');
+        const progressElement = progressBar.querySelector('progress');
+        const progressStatus = document.getElementById('progressStatus');
+        const result = document.getElementById('result');
+
+        socket.on('progress', function(data) {
+            progressBar.style.display = 'block';
+            progressElement.value = data.progress;
+            progressStatus.textContent = data.status;
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            progressBar.style.display = 'block';
+            progressElement.value = 0;
+            progressStatus.textContent = 'Đang tải lên...';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.error) {
+                    result.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    result.innerHTML = `
+                        <p>${data.message}</p>
+                        <p>Thời gian render: ${data.render_time} giây</p>
+                        <img src="data:image/gif;base64,${data.gif}" alt="Animated GIF">
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Đã xảy ra lỗi: ${error.message}</p>`;
+            } finally {
+                progressBar.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
