@@ -10,9 +10,10 @@
     <h1>Tạo hoạt ảnh từ hình ảnh</h1>
     <form id="uploadForm">
         <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif" required>
-        <select name="motion">
-            <option value="examples/config/motion/dab.yaml">Dab</option>
-            <!-- Thêm các tùy chọn chuyển động khác nếu cần -->
+        <select name="motion" id="motion">
+            {% for motion in motions %}
+                <option value="examples/config/motion/{{ motion }}">{{ motion }}</option>
+            {% endfor %}
         </select>
         <button type="submit">Tải lên và tạo hoạt ảnh</button>
     </form>
@@ -21,6 +22,7 @@
         <progress id="progress" value="0" max="100"></progress>
     </div>
     <div id="result"></div>
+
     <div id="cpu-info"></div>
     <input type="range" id="cpu-slider" min="1" max="1" value="1">
     <span id="cpu-value"></span>

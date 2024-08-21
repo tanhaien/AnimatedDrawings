@@ -18,7 +18,6 @@ from flask_socketio import SocketIO, emit
 import animated_drawings.render
 import hashlib
 from werkzeug.utils import secure_filename
-import psutil
 import multiprocessing
 
 app = Flask(__name__)
@@ -30,6 +29,14 @@ OUTPUT_FOLDER = 'outputs'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+CPU_LIMIT = multiprocessing.cpu_count()
+
+def set_cpu_limit(limit):
+    global CPU_LIMIT
+    CPU_LIMIT = min(limit, multiprocessing.cpu_count())
+    os.environ["OMP_NUM_THREADS"] = str(CPU_LIMIT)
+    os.environ["MKL_NUM_THREADS"] = str(CPU_LIMIT)
+
 def get_file_hash(file):
     hasher = hashlib.md5()
     for chunk in iter(lambda: file.read(4096), b""):
@@ -39,7 +46,21 @@ def get_file_hash(file):
 
 @app.route('/')
 def index():
-    return render_template('upload.html')
+    motions = get_available_motions()
+    return render_template('upload.html', motions=motions)
+
+@app.route('/cpu_info')
+def cpu_info():
+    return jsonify({
+        'cpu_limit': CPU_LIMIT,
+        'max_cpu': multiprocessing.cpu_count()
+    })
+
+@app.route('/set_cpu_limit', methods=['POST'])
+def set_cpu_limit_route():
+    limit = request.json.get('limit', 1)
+    set_cpu_limit(limit)
+    return jsonify({'message': f'CPU limit set to {CPU_LIMIT}'})
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -101,26 +122,10 @@ def upload_file():
         socketio.emit('progress', {'step': 'Lỗi xử lý', 'percentage': 100, 'error': str(e)})
         return jsonify({'error': str(e)}), 500
 
-CPU_LIMIT = multiprocessing.cpu_count()  # Mặc định sử dụng tất cả core
-
-def set_cpu_limit(limit):
-    global CPU_LIMIT
-    CPU_LIMIT = min(limit, multiprocessing.cpu_count())
-    os.environ["OMP_NUM_THREADS"] = str(CPU_LIMIT)
-    os.environ["MKL_NUM_THREADS"] = str(CPU_LIMIT)
-
-@app.route('/cpu_info')
-def cpu_info():
-    return jsonify({
-        'cpu_limit': CPU_LIMIT,
-        'max_cpu': multiprocessing.cpu_count()
-    })
-
-@app.route('/set_cpu_limit', methods=['POST'])
-def set_cpu_limit_route():
-    limit = request.json.get('limit', 1)
-    set_cpu_limit(limit)
-    return jsonify({'message': f'CPU limit set to {CPU_LIMIT}'})
+def get_available_motions():
+    motion_dir = resource_filename(__name__, 'examples/config/motion')
+    motions = [f for f in os.listdir(motion_dir) if f.endswith('.yaml')]
+    return motions
 
 if __name__ == '__main__':
     log_dir = Path('./logs')
