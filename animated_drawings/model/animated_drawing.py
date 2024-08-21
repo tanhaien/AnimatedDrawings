@@ -30,13 +30,19 @@ from animated_drawings.model.quaternions import Quaternions
 from animated_drawings.model.vectors import Vectors
 from animated_drawings.config import CharacterConfig, MotionConfig, RetargetConfig
 
-def save_cache(data, filename):
-    with gzip.open(filename, 'wb') as f:
+def save_cache(data, config_path, filename):
+    config_dir = Path(config_path).parent
+    cache_dir = config_dir / 'cache'
+    cache_dir.mkdir(exist_ok=True)
+    cache_path = cache_dir / filename
+    with gzip.open(cache_path, 'wb') as f:
         pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-def load_cache(filename):
-    if Path(filename).exists():
-        with gzip.open(filename, 'rb') as f:
+def load_cache(config_path, filename):
+    config_dir = Path(config_path).parent
+    cache_path = config_dir / 'cache' / filename
+    if cache_path.exists():
+        with gzip.open(cache_path, 'rb') as f:
             return pickle.load(f)
     return None
 
@@ -249,11 +255,10 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # generate the mesh
         self.mesh: AnimatedDrawingMesh
-        cache_filename = "mesh_cache.pkl"
-        self.mesh: AnimatedDrawingMesh = load_cache(cache_filename)
+        self.mesh: AnimatedDrawingMesh = load_cache(self.char_cfg.config_path, "mesh_cache.pkl")
         if self.mesh is None:
             self._generate_mesh()
-            save_cache(self.mesh, cache_filename)
+            save_cache(self.mesh, self.char_cfg.config_path, "mesh_cache.pkl")
 
         self.rig = AnimatedDrawingRig(self.char_cfg)
         self.add_child(self.rig)
@@ -262,13 +267,10 @@ class AnimatedDrawing(Transform, TimeManager):
         self._modify_retargeting_cfg_for_character()
 
         self.joint_to_tri_v_idx:  Dict[str, npt.NDArray[np.int32]]
-        cache_filename = "joint_to_triangles_cache.pkl"
-        cached_data = load_cache(cache_filename)
-        if cached_data is not None:
-            self.joint_to_tri_v_idx = cached_data
-        else:
+        self.joint_to_tri_v_idx = load_cache(self.char_cfg.config_path, "joint_to_triangles_cache.pkl")
+        if self.joint_to_tri_v_idx is None:
             self._initialize_joint_to_triangles_dict()
-            save_cache(self.joint_to_tri_v_idx, cache_filename)
+            save_cache(self.joint_to_tri_v_idx, self.char_cfg.config_path, "joint_to_triangles_cache.pkl")
 
         self.indices: npt.NDArray[np.int32] = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
 
@@ -277,11 +279,10 @@ class AnimatedDrawing(Transform, TimeManager):
         self._initialize_retargeter_bvh(motion_cfg, retarget_cfg)
 
         # initialize arap solver with original joint positions
-        arap_cache_filename = "arap_cache.pkl"
-        self.arap = load_cache(arap_cache_filename)
+        self.arap = load_cache(self.char_cfg.config_path, "arap_cache.pkl")
         if self.arap is None:
             self.arap = ARAP(self.rig.get_joints_2D_positions(), self.mesh['triangles'], self.mesh['vertices'])
-            save_cache(self.arap, arap_cache_filename)
+            save_cache(self.arap, self.char_cfg.config_path, "arap_cache.pkl")
 
         self.vertices: npt.NDArray[np.float32]
         self._initialize_vertices()
@@ -469,10 +470,9 @@ class AnimatedDrawing(Transform, TimeManager):
         self.joint_to_tri_v_idx = {k: np.array(v).flatten() for k, v in joint_to_tri_v_idx.items()}
 
     def _load_mask(self) -> npt.NDArray[np.uint8]:
-        cache_filename = "mask_cache.pkl"
-        cached_data = load_cache(cache_filename)
-        if cached_data is not None:
-            return cached_data
+        mask_cache = load_cache(self.char_cfg.config_path, "mask_cache.pkl")
+        if mask_cache is not None:
+            return mask_cache
 
         """ Load and perform preprocessing upon the mask """
         mask_p: Path = self.char_cfg.mask_p
@@ -493,14 +493,13 @@ class AnimatedDrawing(Transform, TimeManager):
         mask = np.zeros([self.img_dim, self.img_dim], _mask.dtype)
         mask[0:_mask.shape[0], 0:_mask.shape[1]] = _mask
 
-        save_cache(mask, cache_filename)
+        save_cache(mask, self.char_cfg.config_path, "mask_cache.pkl")
         return mask
 
     def _load_txtr(self) -> npt.NDArray[np.uint8]:
-        cache_filename = "txtr_cache.pkl"
-        cached_data = load_cache(cache_filename)
-        if cached_data is not None:
-            return cached_data
+        txtr_cache = load_cache(self.char_cfg.config_path, "txtr_cache.pkl")
+        if txtr_cache is not None:
+            return txtr_cache
 
         """ Load and perform preprocessing upon the drawing image """
         txtr_p: Path = self.char_cfg.txtr_p
@@ -526,7 +525,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         txtr[np.where(self.mask == 0)][:, 3] = 0  # make pixels outside mask transparent
 
-        save_cache(txtr, cache_filename)
+        save_cache(txtr, self.char_cfg.config_path, "txtr_cache.pkl")
         return txtr
 
     def _generate_mesh(self) -> None:
@@ -577,10 +576,9 @@ class AnimatedDrawing(Transform, TimeManager):
         self.mesh = {'vertices': vertices, 'triangles': triangles}
 
     def _initialize_vertices(self) -> None:
-        cache_filename = "vertices_cache.pkl"
-        cached_data = load_cache(cache_filename)
-        if cached_data is not None:
-            self.vertices = cached_data
+        vertices_cache = load_cache(self.char_cfg.config_path, "vertices_cache.pkl")
+        if vertices_cache is not None:
+            self.vertices = vertices_cache
             return
 
         """
@@ -607,7 +605,7 @@ class AnimatedDrawing(Transform, TimeManager):
         for c_idx, v_idxs in enumerate(self.joint_to_tri_v_idx.values()):
             self.vertices[v_idxs, 3:6] = colors[c_idx]  # rgb colors
 
-        save_cache(self.vertices, cache_filename)
+        save_cache(self.vertices, self.char_cfg.config_path, "vertices_cache.pkl")
 
     def _initialize_opengl_resources(self) -> None:
 

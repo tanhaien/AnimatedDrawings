@@ -16,6 +16,8 @@ from examples.annotations_to_animation import annotations_to_animation
 import time
 from flask_socketio import SocketIO, emit
 import animated_drawings.render
+import hashlib
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -25,6 +27,13 @@ UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'outputs'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+def get_file_hash(file):
+    hasher = hashlib.md5()
+    for chunk in iter(lambda: file.read(4096), b""):
+        hasher.update(chunk)
+    file.seek(0)  # Reset file pointer
+    return hasher.hexdigest()
 
 @app.route('/')
 def index():
@@ -45,65 +54,41 @@ def upload_file():
         return jsonify({'error': 'Chỉ chấp nhận file ảnh (PNG, JPG, JPEG, GIF)'}), 400
     
     try:
-        start_time = time.time()
-        filename = str(uuid.uuid4()) + '.png'
+        file_hash = get_file_hash(file)
+        filename = secure_filename(file_hash + os.path.splitext(file.filename)[1])
         file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+        char_anno_dir = os.path.join(OUTPUT_FOLDER, file_hash)
         
-        char_anno_dir = os.path.join(OUTPUT_FOLDER, str(uuid.uuid4()))
-        os.makedirs(char_anno_dir, exist_ok=True)
-        
-        socketio.emit('progress', {'status': 'Đang tạo annotations...', 'progress': 25})
-        image_to_annotations(file_path, char_anno_dir)
+        if os.path.exists(char_anno_dir):
+            # File đã tồn tại, sử dụng kết quả đã xử lý trước đó
+            app.logger.info(f"File {filename} đã tồn tại, sử dụng kết quả đã xử lý.")
+        else:
+            # File chưa tồn tại, xử lý mới
+            os.makedirs(char_anno_dir, exist_ok=True)
+            file.save(file_path)
+            image_to_annotations(file_path, char_anno_dir)
         
         retarget_cfg_fn = resource_filename(__name__, 'examples/config/retarget/fair1_ppf.yaml')
-        
-        socketio.emit('progress', {'status': 'Đang tạo cấu hình MVC...', 'progress': 50})
-        mvc_cfg = {
-            'scene': {
-                'ANIMATED_CHARACTERS': [{
-                    'character_cfg': os.path.join(char_anno_dir, 'char_cfg.yaml'),
-                    'motion_cfg': motion,
-                    'retarget_cfg': retarget_cfg_fn
-                }]
-            },
-            'view': {
-                'USE_MESA': True
-            },
-            'controller': {
-                'MODE': 'video_render',
-                'OUTPUT_VIDEO_PATH': os.path.join(char_anno_dir, 'video.gif')
-            }
-        }
-        
-        mvc_cfg_path = os.path.join(char_anno_dir, 'mvc_cfg.yaml')
-        with open(mvc_cfg_path, 'w') as f:
-            yaml.dump(mvc_cfg, f)
-        
-        socketio.emit('progress', {'status': 'Đang tạo hoạt ảnh...', 'progress': 75})
-        animated_drawings.render.start(mvc_cfg_path)
+        start_time = time.time()
+        annotations_to_animation(char_anno_dir, motion, retarget_cfg_fn)
+        end_time = time.time()
+        render_time = round(end_time - start_time, 2)
         
         output_gif_path = os.path.join(char_anno_dir, 'video.gif')
-        if os.path.exists(output_gif_path) and os.path.getsize(output_gif_path) > 0:
-            with open(output_gif_path, 'rb') as gif_file:
-                gif_content = gif_file.read()
-                if gif_content:
-                    gif_base64 = base64.b64encode(gif_content).decode('ascii')
-                    end_time = time.time()
-                    render_time = round(end_time - start_time, 2)
-                    socketio.emit('progress', {'status': 'Hoàn thành!', 'progress': 100})
-                    return jsonify({
-                        'gif': gif_base64,
-                        'message': 'GIF đã được tạo thành công',
-                        'render_time': render_time
-                    })
-                else:
-                    return jsonify({'error': 'File GIF rỗng'}), 500
-        else:
-            return jsonify({'error': 'Không tìm thấy file output.gif hoặc file rỗng'}), 404
+        if not os.path.exists(output_gif_path):
+            return jsonify({'error': 'Không tìm thấy file output.gif'}), 404
+        
+        with open(output_gif_path, 'rb') as gif_file:
+            gif_base64 = base64.b64encode(gif_file.read()).decode('ascii')
+        
+        return jsonify({
+            'gif': gif_base64,
+            'message': 'GIF đã được tạo thành công',
+            'render_time': render_time
+        })
     except Exception as e:
-        app.logger.error(f"Lỗi: {str(e)}", exc_info=True)
-        return jsonify({'error': f'Đã xảy ra lỗi: {str(e)}'}), 500
+        app.logger.error(f"Lỗi: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     log_dir = Path('./logs')
