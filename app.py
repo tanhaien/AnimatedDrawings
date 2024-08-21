@@ -18,6 +18,8 @@ from flask_socketio import SocketIO, emit
 import animated_drawings.render
 import hashlib
 from werkzeug.utils import secure_filename
+import psutil
+import multiprocessing
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -98,6 +100,27 @@ def upload_file():
         app.logger.error(f"Lỗi: {str(e)}")
         socketio.emit('progress', {'step': 'Lỗi xử lý', 'percentage': 100, 'error': str(e)})
         return jsonify({'error': str(e)}), 500
+
+CPU_LIMIT = multiprocessing.cpu_count()  # Mặc định sử dụng tất cả core
+
+def set_cpu_limit(limit):
+    global CPU_LIMIT
+    CPU_LIMIT = min(limit, multiprocessing.cpu_count())
+    os.environ["OMP_NUM_THREADS"] = str(CPU_LIMIT)
+    os.environ["MKL_NUM_THREADS"] = str(CPU_LIMIT)
+
+@app.route('/cpu_info')
+def cpu_info():
+    return jsonify({
+        'cpu_limit': CPU_LIMIT,
+        'max_cpu': multiprocessing.cpu_count()
+    })
+
+@app.route('/set_cpu_limit', methods=['POST'])
+def set_cpu_limit_route():
+    limit = request.json.get('limit', 1)
+    set_cpu_limit(limit)
+    return jsonify({'message': f'CPU limit set to {CPU_LIMIT}'})
 
 if __name__ == '__main__':
     log_dir = Path('./logs')

@@ -16,48 +16,100 @@
         </select>
         <button type="submit">Tải lên và tạo hoạt ảnh</button>
     </form>
-    <div id="progress-bar" style="display: none;">
-        <div id="progress-step"></div>
-        <progress id="progress" value="0" max="100"></progress>
+    <div id="progressBar" style="display: none;">
+        <progress value="0" max="100"></progress>
+        <span id="progressStatus"></span>
     </div>
     <div id="result"></div>
 
+    <div id="cpu-info"></div>
+    <input type="range" id="cpu-slider" min="1" max="1" value="1">
+    <span id="cpu-value"></span>
+
     <script>
         const socket = io();
-        const progressBar = document.getElementById('progress-bar');
-        const progressStep = document.getElementById('progress-step');
-        const progress = document.getElementById('progress');
+        const form = document.getElementById('uploadForm');
+        const progressBar = document.getElementById('progressBar');
+        const progressElement = progressBar.querySelector('progress');
+        const progressStatus = document.getElementById('progressStatus');
         const result = document.getElementById('result');
 
         socket.on('progress', function(data) {
             progressBar.style.display = 'block';
-            progressStep.textContent = data.step;
-            progress.value = data.percentage;
-            
-            if (data.error) {
-                alert('Lỗi: ' + data.error);
+            progressElement.value = data.progress;
+            progressStatus.textContent = data.status;
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            progressBar.style.display = 'block';
+            progressElement.value = 0;
+            progressStatus.textContent = 'Đang tải lên...';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.error) {
+                    result.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    result.innerHTML = `
+                        <p>${data.message}</p>
+                        <p>Thời gian render: ${data.render_time} giây</p>
+                        <img src="data:image/gif;base64,${data.gif}" alt="Animated GIF">
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Đã xảy ra lỗi: ${error.message}</p>`;
+            } finally {
+                progressBar.style.display = 'none';
             }
         });
 
-        document.querySelector('form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            progressBar.style.display = 'block';
-            const formData = new FormData(e.target);
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            if (data.error) {
-                result.innerHTML = `<p style="color: red;">${data.error}</p>`;
-            } else {
-                result.innerHTML = `
-                    <p>${data.message}</p>
-                    <p>Thời gian xử lý: ${data.render_time} giây</p>
-                    <img src="data:image/gif;base64,${data.gif}" alt="Animated GIF">
-                `;
-            }
+        const cpuSlider = document.getElementById('cpu-slider');
+        const cpuValue = document.getElementById('cpu-value');
+
+        function updateCPUInfo() {
+            fetch('/cpu_info')
+                .then(response => response.json())
+                .then(data => {
+                    const cpuInfo = document.getElementById('cpu-info');
+                    cpuInfo.innerHTML = `<p>CPU Limit: ${data.cpu_limit}</p>`;
+                    
+                    cpuSlider.max = data.max_cpu;
+                    cpuSlider.value = data.cpu_limit;
+                    cpuValue.textContent = data.cpu_limit;
+                });
+        }
+
+        cpuSlider.addEventListener('input', function() {
+            cpuValue.textContent = this.value;
         });
+
+        cpuSlider.addEventListener('change', function() {
+            fetch('/set_cpu_limit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({limit: parseInt(this.value)}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                updateCPUInfo();
+            });
+        });
+
+        // Cập nhật thông tin CPU mỗi 5 giây
+        setInterval(updateCPUInfo, 5000);
+
+        // Khởi tạo thông tin CPU khi trang được tải
+        updateCPUInfo();
     </script>
 </body>
 </html>
