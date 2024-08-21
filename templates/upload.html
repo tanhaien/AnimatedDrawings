@@ -8,15 +8,25 @@
 </head>
 <body>
     <h1>Tạo hoạt ảnh từ hình ảnh</h1>
-    <form id="uploadForm">
-        <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif" required>
-        <select name="motion" id="motion">
-            {% for motion in motions %}
-                <option value="examples/config/motion/{{ motion }}">{{ motion }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Tải lên và tạo hoạt ảnh</button>
-    </form>
+    <div id="step1">
+        <h2>Bước 1: Tải lên ảnh</h2>
+        <form id="uploadImageForm">
+            <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif" required>
+            <button type="submit">Tải lên ảnh</button>
+        </form>
+    </div>
+    <div id="step2" style="display: none;">
+        <h2>Bước 2: Chọn chuyển động</h2>
+        <form id="createAnimationForm">
+            <input type="hidden" id="fileHash" name="file_hash">
+            <select name="motion" id="motion">
+                {% for motion in motions %}
+                    <option value="examples/config/motion/{{ motion }}">{{ motion }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Tạo hoạt ảnh</button>
+        </form>
+    </div>
     <div id="progress-bar" style="display: none;">
         <div id="progress-step"></div>
         <progress id="progress" value="0" max="100"></progress>
@@ -29,7 +39,8 @@
 
     <script>
         const socket = io();
-        const form = document.getElementById('uploadForm');
+        const uploadImageForm = document.getElementById('uploadImageForm');
+        const createAnimationForm = document.getElementById('createAnimationForm');
         const progressBar = document.getElementById('progress-bar');
         const progressStep = document.getElementById('progress-step');
         const progress = document.getElementById('progress');
@@ -82,16 +93,42 @@
         // Cập nhật thông tin CPU khi trang được tải
         updateCPUInfo();
 
-        form.addEventListener('submit', async (e) => {
+        uploadImageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             progressBar.style.display = 'block';
             progress.value = 0;
-            progressStep.textContent = 'Đang tải lên...';
+            progressStep.textContent = 'Đang tải lên ảnh...';
             result.innerHTML = '';
 
             try {
-                const response = await fetch('/upload', {
+                const response = await fetch('/upload_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.error) {
+                    result.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    document.getElementById('fileHash').value = data.file_hash;
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('step2').style.display = 'block';
+                }
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Đã xảy ra lỗi: ${error.message}</p>`;
+            }
+        });
+
+        createAnimationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            progressBar.style.display = 'block';
+            progress.value = 0;
+            progressStep.textContent = 'Đang tạo hoạt ảnh...';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/create_animation', {
                     method: 'POST',
                     body: formData
                 });

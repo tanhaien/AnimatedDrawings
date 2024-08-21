@@ -62,13 +62,12 @@ def set_cpu_limit_route():
     set_cpu_limit(limit)
     return jsonify({'message': f'CPU limit set to {CPU_LIMIT}'})
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
     if 'file' not in request.files:
         return jsonify({'error': 'Không có file nào được tải lên'}), 400
     
     file = request.files['file']
-    motion = request.form.get('motion', 'examples/config/motion/dab.yaml')
     
     if file.filename == '':
         return jsonify({'error': 'Không có file nào được chọn'}), 400
@@ -77,22 +76,36 @@ def upload_file():
         return jsonify({'error': 'Chỉ chấp nhận file ảnh (PNG, JPG, JPEG, GIF)'}), 400
     
     try:
-        socketio.emit('progress', {'step': 'Bắt đầu xử lý', 'percentage': 0})
-        
         file_hash = get_file_hash(file)
         filename = secure_filename(file_hash + os.path.splitext(file.filename)[1])
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         char_anno_dir = os.path.join(OUTPUT_FOLDER, file_hash)
         
-        if os.path.exists(char_anno_dir):
-            socketio.emit('progress', {'step': 'Sử dụng cache dữ liệu 3D của nhân vật đã xử lý trước đó', 'percentage': 30})
-            app.logger.info(f"File {filename} đã tồn tại, sử dụng kết quả đã xử lý.")
-        else:
-            socketio.emit('progress', {'step': 'Xử lý ảnh mới', 'percentage': 10})
+        if not os.path.exists(char_anno_dir):
             os.makedirs(char_anno_dir, exist_ok=True)
             file.save(file_path)
-            socketio.emit('progress', {'step': 'Tạo annotations', 'percentage': 20})
             image_to_annotations(file_path, char_anno_dir)
+        
+        return jsonify({
+            'message': 'Ảnh đã được tải lên và xử lý thành công',
+            'file_hash': file_hash
+        })
+    except Exception as e:
+        app.logger.error(f"Lỗi: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/create_animation', methods=['POST'])
+def create_animation():
+    file_hash = request.form.get('file_hash')
+    motion = request.form.get('motion', 'examples/config/motion/dab.yaml')
+    
+    if not file_hash:
+        return jsonify({'error': 'Không tìm thấy thông tin file'}), 400
+    
+    try:
+        char_anno_dir = os.path.join(OUTPUT_FOLDER, file_hash)
+        if not os.path.exists(char_anno_dir):
+            return jsonify({'error': 'Không tìm thấy dữ liệu ảnh đã xử lý'}), 404
         
         socketio.emit('progress', {'step': 'Bắt đầu tạo animation', 'percentage': 40})
         retarget_cfg_fn = resource_filename(__name__, 'examples/config/retarget/fair1_ppf.yaml')

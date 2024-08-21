@@ -1,0 +1,10 @@
+controller:
+  MODE: video_render
+  OUTPUT_VIDEO_PATH: /home/p06lab/PHYS/AnimatedDrawings/outputs/af3f2532312487fb6c382a153c4f038b/video.gif
+scene:
+  ANIMATED_CHARACTERS:
+  - character_cfg: /home/p06lab/PHYS/AnimatedDrawings/outputs/af3f2532312487fb6c382a153c4f038b/char_cfg.yaml
+    motion_cfg: /home/p06lab/PHYS/AnimatedDrawings/examples/config/motion/dab.yaml
+    retarget_cfg: /home/p06lab/PHYS/AnimatedDrawings/examples/config/retarget/fair1_ppf.yaml
+view:
+  USE_MESA: true
