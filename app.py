@@ -54,25 +54,31 @@ def upload_file():
         return jsonify({'error': 'Chỉ chấp nhận file ảnh (PNG, JPG, JPEG, GIF)'}), 400
     
     try:
+        socketio.emit('progress', {'step': 'Bắt đầu xử lý', 'percentage': 0})
+        
         file_hash = get_file_hash(file)
         filename = secure_filename(file_hash + os.path.splitext(file.filename)[1])
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         char_anno_dir = os.path.join(OUTPUT_FOLDER, file_hash)
         
         if os.path.exists(char_anno_dir):
-            # File đã tồn tại, sử dụng kết quả đã xử lý trước đó
+            socketio.emit('progress', {'step': 'Sử dụng cache dữ liệu 3D của nhân vật đã xử lý trước đó', 'percentage': 30})
             app.logger.info(f"File {filename} đã tồn tại, sử dụng kết quả đã xử lý.")
         else:
-            # File chưa tồn tại, xử lý mới
+            socketio.emit('progress', {'step': 'Xử lý ảnh mới', 'percentage': 10})
             os.makedirs(char_anno_dir, exist_ok=True)
             file.save(file_path)
+            socketio.emit('progress', {'step': 'Tạo annotations', 'percentage': 20})
             image_to_annotations(file_path, char_anno_dir)
         
+        socketio.emit('progress', {'step': 'Bắt đầu tạo animation', 'percentage': 40})
         retarget_cfg_fn = resource_filename(__name__, 'examples/config/retarget/fair1_ppf.yaml')
         start_time = time.time()
         annotations_to_animation(char_anno_dir, motion, retarget_cfg_fn)
         end_time = time.time()
         render_time = round(end_time - start_time, 2)
+        
+        socketio.emit('progress', {'step': 'Hoàn thành tạo animation', 'percentage': 90})
         
         output_gif_path = os.path.join(char_anno_dir, 'video.gif')
         if not os.path.exists(output_gif_path):
@@ -81,6 +87,8 @@ def upload_file():
         with open(output_gif_path, 'rb') as gif_file:
             gif_base64 = base64.b64encode(gif_file.read()).decode('ascii')
         
+        socketio.emit('progress', {'step': 'Hoàn thành', 'percentage': 100})
+        
         return jsonify({
             'gif': gif_base64,
             'message': 'GIF đã được tạo thành công',
@@ -88,6 +96,7 @@ def upload_file():
         })
     except Exception as e:
         app.logger.error(f"Lỗi: {str(e)}")
+        socketio.emit('progress', {'step': 'Lỗi xử lý', 'percentage': 100, 'error': str(e)})
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

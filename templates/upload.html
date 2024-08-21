@@ -16,53 +16,46 @@
         </select>
         <button type="submit">Tải lên và tạo hoạt ảnh</button>
     </form>
-    <div id="progressBar" style="display: none;">
-        <progress value="0" max="100"></progress>
-        <span id="progressStatus"></span>
+    <div id="progress-bar" style="display: none;">
+        <div id="progress-step"></div>
+        <progress id="progress" value="0" max="100"></progress>
     </div>
     <div id="result"></div>
 
     <script>
         const socket = io();
-        const form = document.getElementById('uploadForm');
-        const progressBar = document.getElementById('progressBar');
-        const progressElement = progressBar.querySelector('progress');
-        const progressStatus = document.getElementById('progressStatus');
+        const progressBar = document.getElementById('progress-bar');
+        const progressStep = document.getElementById('progress-step');
+        const progress = document.getElementById('progress');
         const result = document.getElementById('result');
 
         socket.on('progress', function(data) {
             progressBar.style.display = 'block';
-            progressElement.value = data.progress;
-            progressStatus.textContent = data.status;
+            progressStep.textContent = data.step;
+            progress.value = data.percentage;
+            
+            if (data.error) {
+                alert('Lỗi: ' + data.error);
+            }
         });
 
-        form.addEventListener('submit', async (e) => {
+        document.querySelector('form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
             progressBar.style.display = 'block';
-            progressElement.value = 0;
-            progressStatus.textContent = 'Đang tải lên...';
-            result.innerHTML = '';
-
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                if (data.error) {
-                    result.innerHTML = `<p style="color: red;">${data.error}</p>`;
-                } else {
-                    result.innerHTML = `
-                        <p>${data.message}</p>
-                        <p>Thời gian render: ${data.render_time} giây</p>
-                        <img src="data:image/gif;base64,${data.gif}" alt="Animated GIF">
-                    `;
-                }
-            } catch (error) {
-                result.innerHTML = `<p style="color: red;">Đã xảy ra lỗi: ${error.message}</p>`;
-            } finally {
-                progressBar.style.display = 'none';
+            const formData = new FormData(e.target);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.error) {
+                result.innerHTML = `<p style="color: red;">${data.error}</p>`;
+            } else {
+                result.innerHTML = `
+                    <p>${data.message}</p>
+                    <p>Thời gian xử lý: ${data.render_time} giây</p>
+                    <img src="data:image/gif;base64,${data.gif}" alt="Animated GIF">
+                `;
             }
         });
     </script>
