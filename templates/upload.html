@@ -1,41 +1,101 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo hoạt ảnh từ hình ảnh</title>
+    <title>Create Animation from Image</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="file"], select, button {
+            margin: 10px 0;
+            padding: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #progress-bar {
+            margin-top: 20px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        #result img {
+            max-width: 100%;
+        }
+        .cpu-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .cpu-control p {
+            margin: 0 0 10px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Tạo hoạt ảnh từ hình ảnh</h1>
-    <div id="step1">
-        <h2>Bước 1: Tải lên ảnh</h2>
-        <form id="uploadImageForm">
-            <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif" required>
-            <button type="submit">Tải lên ảnh</button>
-        </form>
+    <div class="container">
+        <h1>Create Animation from Image</h1>
+        <div id="step1">
+            <h2>Step 1: Upload Image</h2>
+            <form id="uploadImageForm">
+                <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif" required>
+                <button type="submit">Upload Image</button>
+            </form>
+        </div>
+        <div id="step2" style="display: none;">
+            <h2>Step 2: Choose Motion</h2>
+            <form id="createAnimationForm">
+                <input type="hidden" id="fileHash" name="file_hash">
+                <select name="motion" id="motion">
+                    {% for motion in motions %}
+                        <option value="examples/config/motion/{{ motion }}">{{ motion }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Create Animation</button>
+            </form>
+        </div>
+        <div id="progress-bar" style="display: none;">
+            <div id="progress-step"></div>
+            <progress id="progress" value="0" max="100"></progress>
+        </div>
+        <div id="result"></div>
     </div>
-    <div id="step2" style="display: none;">
-        <h2>Bước 2: Chọn chuyển động</h2>
-        <form id="createAnimationForm">
-            <input type="hidden" id="fileHash" name="file_hash">
-            <select name="motion" id="motion">
-                {% for motion in motions %}
-                    <option value="examples/config/motion/{{ motion }}">{{ motion }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Tạo hoạt ảnh</button>
-        </form>
-    </div>
-    <div id="progress-bar" style="display: none;">
-        <div id="progress-step"></div>
-        <progress id="progress" value="0" max="100"></progress>
-    </div>
-    <div id="result"></div>
 
-    <div id="cpu-info"></div>
-    <input type="range" id="cpu-slider" min="1" max="1" value="1">
-    <span id="cpu-value"></span>
+    <div class="cpu-control">
+        <div id="cpu-info"></div>
+        <input type="range" id="cpu-slider" min="1" max="1" value="1">
+        <span id="cpu-value"></span>
+    </div>
 
     <script>
         const socket = io();
@@ -54,7 +114,7 @@
             progress.value = data.percentage;
             
             if (data.error) {
-                alert('Lỗi: ' + data.error);
+                alert('Error: ' + data.error);
             }
         });
 
@@ -90,7 +150,7 @@
             });
         });
 
-        // Cập nhật thông tin CPU khi trang được tải
+        // Update CPU info when the page loads
         updateCPUInfo();
 
         uploadImageForm.addEventListener('submit', async (e) => {
@@ -98,7 +158,7 @@
             const formData = new FormData(e.target);
             progressBar.style.display = 'block';
             progress.value = 0;
-            progressStep.textContent = 'Đang tải lên ảnh...';
+            progressStep.textContent = 'Uploading image...';
             result.innerHTML = '';
 
             try {
@@ -115,7 +175,7 @@
                     document.getElementById('step2').style.display = 'block';
                 }
             } catch (error) {
-                result.innerHTML = `<p style="color: red;">Đã xảy ra lỗi: ${error.message}</p>`;
+                result.innerHTML = `<p style="color: red;">An error occurred: ${error.message}</p>`;
             }
         });
 
@@ -124,7 +184,7 @@
             const formData = new FormData(e.target);
             progressBar.style.display = 'block';
             progress.value = 0;
-            progressStep.textContent = 'Đang tạo hoạt ảnh...';
+            progressStep.textContent = 'Creating animation...';
             result.innerHTML = '';
 
             try {
@@ -138,12 +198,12 @@
                 } else {
                     result.innerHTML = `
                         <p>${data.message}</p>
-                        <p>Thời gian render: ${data.render_time} giây</p>
+                        <p>Render time: ${data.render_time} seconds</p>
                         <img src="data:image/gif;base64,${data.gif}" alt="Animated GIF">
                     `;
                 }
             } catch (error) {
-                result.innerHTML = `<p style="color: red;">Đã xảy ra lỗi: ${error.message}</p>`;
+                result.innerHTML = `<p style="color: red;">An error occurred: ${error.message}</p>`;
             } finally {
                 progressBar.style.display = 'none';
             }

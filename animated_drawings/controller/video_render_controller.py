@@ -177,7 +177,8 @@ class GIFWriter(VideoWriter):
 
     def interpolate_frame(self, frame1: npt.NDArray[np.uint8], frame2: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
         """ Interpolate between two frames """
-        return ((frame1.astype(np.float32) + frame2.astype(np.float32)) / 2).astype(np.uint8)
+        return cv2.addWeighted(frame1, 0.5, frame2, 0.5, 0)
+        
 
     def interpolate_frames_parallel(self, frames):
         with concurrent.futures.ThreadPoolExecutor() as executor:

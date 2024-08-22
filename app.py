@@ -65,15 +65,15 @@ def set_cpu_limit_route():
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
-        return jsonify({'error': 'Không có file nào được tải lên'}), 400
+        return jsonify({'error': 'No file part in the request'}), 400
     
     file = request.files['file']
     
     if file.filename == '':
-        return jsonify({'error': 'Không có file nào được chọn'}), 400
+        return jsonify({'error': 'No selected file'}), 400
     
     if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-        return jsonify({'error': 'Chỉ chấp nhận file ảnh (PNG, JPG, JPEG, GIF)'}), 400
+        return jsonify({'error': 'Only image files (PNG, JPG, JPEG, GIF) are allowed'}), 400
     
     try:
         file_hash = get_file_hash(file)
@@ -87,11 +87,11 @@ def upload_image():
             image_to_annotations(file_path, char_anno_dir)
         
         return jsonify({
-            'message': 'Ảnh đã được tải lên và xử lý thành công',
+            'message': 'Image successfully uploaded and processed',
             'file_hash': file_hash
         })
     except Exception as e:
-        app.logger.error(f"Lỗi: {str(e)}")
+        app.logger.error(f"Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/create_animation', methods=['POST'])
@@ -100,44 +100,46 @@ def create_animation():
     motion = request.form.get('motion', 'examples/config/motion/dab.yaml')
     
     if not file_hash:
-        return jsonify({'error': 'Không tìm thấy thông tin file'}), 400
+        return jsonify({'error': 'File information not found'}), 400
     
     try:
         char_anno_dir = os.path.join(OUTPUT_FOLDER, file_hash)
         if not os.path.exists(char_anno_dir):
-            return jsonify({'error': 'Không tìm thấy dữ liệu ảnh đã xử lý'}), 404
+            return jsonify({'error': 'Image data not found'}), 404
         
-        socketio.emit('progress', {'step': 'Bắt đầu tạo animation', 'percentage': 40})
+        socketio.emit('progress', {'step': 'Starting animation creation...', 'percentage': 40})
         retarget_cfg_fn = resource_filename(__name__, 'examples/config/retarget/fair1_ppf.yaml')
         start_time = time.time()
         annotations_to_animation(char_anno_dir, motion, retarget_cfg_fn)
         end_time = time.time()
         render_time = round(end_time - start_time, 2)
         
-        socketio.emit('progress', {'step': 'Hoàn thành tạo animation', 'percentage': 90})
+        socketio.emit('progress', {'step': 'Finishing animation creation...', 'percentage': 90})
         
         output_gif_path = os.path.join(char_anno_dir, 'video.gif')
         if not os.path.exists(output_gif_path):
-            return jsonify({'error': 'Không tìm thấy file output.gif'}), 404
+            return jsonify({'error': 'Output GIF file not found'}), 404
         
         with open(output_gif_path, 'rb') as gif_file:
             gif_base64 = base64.b64encode(gif_file.read()).decode('ascii')
         
-        socketio.emit('progress', {'step': 'Hoàn thành', 'percentage': 100})
+        socketio.emit('progress', {'step': 'Completion. Please wait...', 'percentage': 100})
         
         return jsonify({
             'gif': gif_base64,
-            'message': 'GIF đã được tạo thành công',
+            'message': 'GIF successfully created',
             'render_time': render_time
         })
     except Exception as e:
-        app.logger.error(f"Lỗi: {str(e)}")
-        socketio.emit('progress', {'step': 'Lỗi xử lý', 'percentage': 100, 'error': str(e)})
+        app.logger.error(f"Error: {str(e)}")
+        socketio.emit('progress', {'step': 'Processing error', 'percentage': 100, 'error': str(e)})
         return jsonify({'error': str(e)}), 500
 
 def get_available_motions():
     motion_dir = resource_filename(__name__, 'examples/config/motion')
     motions = [f for f in os.listdir(motion_dir) if f.endswith('.yaml')]
+    # Sắp xếp danh sách motion theo thứ tự abc
+    motions.sort()
     return motions
 
 if __name__ == '__main__':
