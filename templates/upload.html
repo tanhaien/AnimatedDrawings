@@ -173,6 +173,9 @@
                     document.getElementById('fileHash').value = data.file_hash;
                     document.getElementById('step1').style.display = 'none';
                     document.getElementById('step2').style.display = 'block';
+                    // Update progress bar
+                    progress.value = 100;
+                    progressStep.textContent = 'Image Uploaded Successfully. Choose Motion and Create Animation';
                 }
             } catch (error) {
                 result.innerHTML = `<p style="color: red;">An error occurred: ${error.message}</p>`;
