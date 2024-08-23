@@ -113,7 +113,7 @@ def render_gif():
     
     return jsonify({
         'render_time': f'{render_time:.2f}',
-        'gif_url': f'/get_gif/{file_hash}'
+        'gif_url': f'/get_gif/{file_hash}?t={int(time.time())}'  # Thêm timestamp
     })
 
 def process_animation(annotations_dir, motion_cfg_fn):
