@@ -10,6 +10,8 @@ import cv2
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 import threading
+import yaml
+from pkg_resources import resource_filename
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Giới hạn kích thước tải lên 16MB
@@ -43,19 +45,16 @@ def resize_image(image, size=(300, 300)):
     _, img_encoded = cv2.imencode('.png', resized)
     return img_encoded.tobytes()
 
+def get_available_motions():
+    motion_dir = resource_filename(__name__, 'config/motion')
+    motions = [f for f in os.listdir(motion_dir) if f.endswith('.yaml')]
+    motions.sort()
+    return motions
+
 @app.route('/')
 def index():
-    return render_template('index.html')
-
-def process_animation(annotations_dir):
-    motion_cfg_fn = 'config/motion/dab.yaml'
-    retarget_cfg_fn = 'config/retarget/fair1_ppf.yaml'
-    
-    start_time = time.time()
-    annotations_to_animation(annotations_dir, motion_cfg_fn, retarget_cfg_fn)
-    end_time = time.time()
-    
-    return end_time - start_time
+    motions = get_available_motions()
+    return render_template('index.html', motions=motions)
 
 @app.route('/render_gif', methods=['POST'])
 def render_gif():
@@ -63,6 +62,10 @@ def render_gif():
         return 'Không có file ảnh nào được gửi', 400
     
     image = request.files['image']
+    motion = request.form.get('motion', 'dab.yaml')
+    
+    motion = os.path.join('config/motion', motion)
+    
     resized_image = resize_image(image)
     file_hash = hashlib.md5(resized_image).hexdigest()
     
@@ -79,7 +82,7 @@ def render_gif():
             image_to_annotations(str(image_path), str(annotations_dir))
     
     # Sử dụng thread pool để xử lý tác vụ nặng
-    future = executor.submit(process_animation, str(annotations_dir))
+    future = executor.submit(process_animation, str(annotations_dir), motion)
     
     # Đợi kết quả từ thread pool
     render_time = future.result()
@@ -88,6 +91,15 @@ def render_gif():
         'render_time': f'{render_time:.2f}',
         'gif_url': f'/get_gif/{file_hash}'
     })
+
+def process_animation(annotations_dir, motion_cfg_fn):
+    retarget_cfg_fn = 'config/retarget/fair1_ppf.yaml'
+    
+    start_time = time.time()
+    annotations_to_animation(annotations_dir, motion_cfg_fn, retarget_cfg_fn)
+    end_time = time.time()
+    
+    return end_time - start_time
 
 @app.route('/get_gif/<path:file_hash>')
 def get_gif(file_hash):
