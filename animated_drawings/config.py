@@ -13,7 +13,7 @@ from animated_drawings.utils import resolve_ad_filepath
 
 
 class Config():
-    FPS_TARGET = 15  # Fps mục tiêu
+    FPS_TARGET = 24  # Fps mục tiêu
     def __init__(self, user_mvc_cfg_fn: str) -> None:
         # get the base mvc config
         with open(resource_filename(__name__, "mvc_base_cfg.yaml"), 'r') as f:
