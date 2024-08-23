@@ -33,18 +33,42 @@ def get_file_hash(file):
     file.seek(0)  # Đặt lại con trỏ file
     return hasher.hexdigest()
 
-def resize_image(image, size=(300, 300)):
+#def resize_image(image, size=(300, 300)):
+#    # Đọc ảnh từ file
+#    img = cv2.imdecode(np.frombuffer(image.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+#    image.seek(0)  # Đặt lại con trỏ file
+    # 
+    # # Resize ảnh
+    # resized = cv2.resize(img, size, interpolation=cv2.INTER_AREA)
+    # 
+    # # Chuyển đổi ảnh thành bytes
+    # _, img_encoded = cv2.imencode('.png', resized)
+    # return img_encoded.tobytes()
+
+def resize_image(image, max_size=300):
     # Đọc ảnh từ file
     img = cv2.imdecode(np.frombuffer(image.read(), np.uint8), cv2.IMREAD_UNCHANGED)
     image.seek(0)  # Đặt lại con trỏ file
     
+    # Tính toán kích thước mới giữ nguyên tỷ lệ
+    height, width, _ = img.shape
+    if max(height, width) <= max_size:
+        return img_encoded.tobytes()
+    
+    if height > width:
+        new_height = max_size
+        new_width = int(width * (max_size / height))
+    else:
+        new_width = max_size
+        new_height = int(height * (max_size / width))
+    
     # Resize ảnh
-    resized = cv2.resize(img, size, interpolation=cv2.INTER_AREA)
+    resized = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
     
     # Chuyển đổi ảnh thành bytes
     _, img_encoded = cv2.imencode('.png', resized)
     return img_encoded.tobytes()
-
+    
 def get_available_motions():
     motion_dir = resource_filename(__name__, 'config/motion')
     motions = [f for f in os.listdir(motion_dir) if f.endswith('.yaml')]

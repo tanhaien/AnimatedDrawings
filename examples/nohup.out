@@ -642,3 +642,199 @@ WARNING:root:Specified duration of .gif is too low, replacing with 20: 8
   0%|          | 0/126 [00:00<?, ?it/s]  6%|▌         | 7/126 [00:00<00:01, 64.37it/s] 13%|█▎        | 17/126 [00:00<00:01, 81.02it/s] 21%|██▏       | 27/126 [00:00<00:01, 86.17it/s] 29%|██▉       | 37/126 [00:00<00:01, 88.84it/s] 37%|███▋      | 47/126 [00:00<00:00, 90.31it/s] 45%|████▌     | 57/126 [00:00<00:00, 91.33it/s] 53%|█████▎    | 67/126 [00:00<00:00, 91.99it/s] 61%|██████    | 77/126 [00:00<00:00, 92.52it/s] 69%|██████▉   | 87/126 [00:00<00:00, 92.78it/s] 77%|███████▋  | 97/126 [00:01<00:00, 92.71it/s] 85%|████████▍ | 107/126 [00:01<00:00, 92.84it/s] 93%|█████████▎| 117/126 [00:01<00:00, 93.05it/s]100%|██████████| 126/126 [00:01<00:00, 71.69it/s]
 127.0.0.1 - - [23/Aug/2024 12:26:20] "POST /render_gif HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:26:20] "POST /render_gif HTTP/1.1" 200 -
+ * Detected change in '/home/p06lab/PHYS/AnimatedDrawings/examples/server.py', reloading
+INFO:werkzeug: * Detected change in '/home/p06lab/PHYS/AnimatedDrawings/examples/server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 109-897-805
+HTTP request from 183.80.57.72 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/
+127.0.0.1 - - [23/Aug/2024 12:33:22] "GET / HTTP/1.1" 200 -
+HTTP request from 183.80.57.72 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 30.00
+Total frames to render: 339
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/ca21d4c94c40935aebde24c6ec9cb87b/annotations/video.gif
+  0%|          | 0/339 [00:00<?, ?it/s]  0%|          | 1/339 [00:00<02:58,  1.89it/s]  3%|▎         | 10/339 [00:00<00:16, 20.47it/s]  6%|▌         | 19/339 [00:00<00:08, 36.40it/s]  8%|▊         | 28/339 [00:00<00:06, 49.42it/s] 11%|█         | 37/339 [00:00<00:05, 59.51it/s] 14%|█▎        | 46/339 [00:01<00:04, 67.03it/s] 16%|█▌        | 55/339 [00:01<00:03, 72.43it/s] 19%|█▉        | 64/339 [00:01<00:03, 75.74it/s] 22%|██▏       | 73/339 [00:01<00:03, 78.42it/s] 24%|██▍       | 82/339 [00:01<00:03, 80.62it/s] 27%|██▋       | 91/339 [00:01<00:03, 82.19it/s] 29%|██▉       | 100/339 [00:01<00:02, 82.85it/s] 32%|███▏      | 109/339 [00:01<00:02, 83.98it/s] 35%|███▍      | 118/339 [00:01<00:02, 84.81it/s] 37%|███▋      | 127/339 [00:01<00:02, 85.37it/s] 40%|████      | 136/339 [00:02<00:02, 86.20it/s] 43%|████▎     | 145/339 [00:02<00:02, 86.47it/s] 45%|████▌     | 154/339 [00:02<00:02, 86.97it/s] 48%|████▊     | 163/339 [00:02<00:02, 87.53it/s] 51%|█████     | 172/339 [00:02<00:01, 87.79it/s] 53%|█████▎    | 181/339 [00:02<00:01, 87.53it/s] 56%|█████▌    | 190/339 [00:02<00:01, 88.08it/s] 59%|█████▊    | 199/339 [00:02<00:01, 88.34it/s] 61%|██████▏   | 208/339 [00:02<00:01, 88.23it/s] 64%|██████▍   | 217/339 [00:03<00:01, 88.18it/s] 67%|██████▋   | 226/339 [00:03<00:01, 87.80it/s] 69%|██████▉   | 235/339 [00:03<00:01, 87.65it/s] 72%|███████▏  | 244/339 [00:03<00:01, 87.27it/s] 75%|███████▍  | 253/339 [00:03<00:00, 87.17it/s] 77%|███████▋  | 262/339 [00:03<00:00, 87.11it/s] 80%|███████▉  | 271/339 [00:03<00:00, 86.54it/s] 83%|████████▎ | 280/339 [00:03<00:00, 86.41it/s] 85%|████████▌ | 289/339 [00:03<00:00, 86.07it/s] 88%|████████▊ | 298/339 [00:03<00:00, 85.75it/s] 91%|█████████ | 307/339 [00:04<00:00, 85.72it/s] 93%|█████████▎| 316/339 [00:04<00:00, 85.72it/s] 96%|█████████▌| 325/339 [00:04<00:00, 85.80it/s] 99%|█████████▊| 334/339 [00:04<00:00, 85.85it/s]100%|██████████| 339/339 [00:05<00:00, 61.75it/s]
+127.0.0.1 - - [23/Aug/2024 12:34:00] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:34:00] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 183.80.57.72 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/get_gif/ca21d4c94c40935aebde24c6ec9cb87b
+127.0.0.1 - - [23/Aug/2024 12:34:01] "GET /get_gif/ca21d4c94c40935aebde24c6ec9cb87b HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:34:01] "GET /get_gif/ca21d4c94c40935aebde24c6ec9cb87b HTTP/1.1" 200 -
+HTTP request from 183.80.57.72 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 119.88
+Total frames to render: 126
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/ca21d4c94c40935aebde24c6ec9cb87b/annotations/video.gif
+WARNING:root:Specified duration of .gif is too low, replacing with 20: 8
+  0%|          | 0/126 [00:00<?, ?it/s]  6%|▌         | 7/126 [00:00<00:01, 64.31it/s] 13%|█▎        | 16/126 [00:00<00:01, 77.70it/s] 20%|█▉        | 25/126 [00:00<00:01, 81.02it/s] 27%|██▋       | 34/126 [00:00<00:01, 83.28it/s] 34%|███▍      | 43/126 [00:00<00:00, 84.61it/s] 41%|████▏     | 52/126 [00:00<00:00, 85.24it/s] 48%|████▊     | 61/126 [00:00<00:00, 85.57it/s] 56%|█████▌    | 70/126 [00:00<00:00, 85.98it/s] 63%|██████▎   | 79/126 [00:00<00:00, 86.51it/s] 70%|██████▉   | 88/126 [00:01<00:00, 86.86it/s] 77%|███████▋  | 97/126 [00:01<00:00, 87.12it/s] 84%|████████▍ | 106/126 [00:01<00:00, 87.26it/s] 91%|█████████▏| 115/126 [00:01<00:00, 87.27it/s] 98%|█████████▊| 124/126 [00:01<00:00, 87.30it/s]100%|██████████| 126/126 [00:01<00:00, 66.85it/s]
+127.0.0.1 - - [23/Aug/2024 12:34:22] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:34:22] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 183.80.57.72 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 30.00
+Total frames to render: 339
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/ca21d4c94c40935aebde24c6ec9cb87b/annotations/video.gif
+  0%|          | 0/339 [00:00<?, ?it/s]  2%|▏         | 7/339 [00:00<00:05, 64.07it/s]  5%|▍         | 16/339 [00:00<00:04, 78.44it/s]  7%|▋         | 25/339 [00:00<00:03, 82.69it/s] 10%|█         | 34/339 [00:00<00:03, 84.68it/s] 13%|█▎        | 43/339 [00:00<00:03, 85.88it/s] 15%|█▌        | 52/339 [00:00<00:03, 86.30it/s] 18%|█▊        | 61/339 [00:00<00:03, 86.20it/s] 21%|██        | 70/339 [00:00<00:03, 85.86it/s] 23%|██▎       | 79/339 [00:00<00:03, 86.04it/s] 26%|██▌       | 88/339 [00:01<00:02, 85.93it/s] 29%|██▊       | 97/339 [00:01<00:02, 85.69it/s] 31%|███▏      | 106/339 [00:01<00:02, 86.08it/s] 34%|███▍      | 115/339 [00:01<00:02, 86.16it/s] 37%|███▋      | 124/339 [00:01<00:02, 86.46it/s] 39%|███▉      | 133/339 [00:01<00:02, 86.90it/s] 42%|████▏     | 142/339 [00:01<00:02, 86.95it/s] 45%|████▍     | 151/339 [00:01<00:02, 87.18it/s] 47%|████▋     | 160/339 [00:01<00:02, 87.42it/s] 50%|████▉     | 169/339 [00:01<00:01, 87.40it/s] 53%|█████▎    | 178/339 [00:02<00:01, 87.46it/s] 55%|█████▌    | 187/339 [00:02<00:01, 87.05it/s] 58%|█████▊    | 196/339 [00:02<00:01, 87.31it/s] 60%|██████    | 205/339 [00:02<00:01, 87.62it/s] 63%|██████▎   | 214/339 [00:02<00:01, 87.61it/s] 66%|██████▌   | 223/339 [00:02<00:01, 87.53it/s] 68%|██████▊   | 232/339 [00:02<00:01, 87.35it/s] 71%|███████   | 241/339 [00:02<00:01, 87.13it/s] 74%|███████▎  | 250/339 [00:02<00:01, 86.76it/s] 76%|███████▋  | 259/339 [00:03<00:00, 86.32it/s] 79%|███████▉  | 268/339 [00:03<00:00, 86.17it/s] 82%|████████▏ | 277/339 [00:03<00:00, 86.01it/s] 84%|████████▍ | 286/339 [00:03<00:00, 85.74it/s] 87%|████████▋ | 295/339 [00:03<00:00, 85.72it/s] 90%|████████▉ | 304/339 [00:03<00:00, 85.69it/s] 92%|█████████▏| 313/339 [00:03<00:00, 85.59it/s] 95%|█████████▍| 322/339 [00:03<00:00, 85.37it/s] 98%|█████████▊| 331/339 [00:03<00:00, 85.47it/s]100%|██████████| 339/339 [00:04<00:00, 68.80it/s]
+127.0.0.1 - - [23/Aug/2024 12:34:53] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:34:53] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 183.80.57.72 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/get_gif/ca21d4c94c40935aebde24c6ec9cb87b
+127.0.0.1 - - [23/Aug/2024 12:34:53] "GET /get_gif/ca21d4c94c40935aebde24c6ec9cb87b HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:34:53] "GET /get_gif/ca21d4c94c40935aebde24c6ec9cb87b HTTP/1.1" 200 -
+HTTP request from 218.49.184.81 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/
+127.0.0.1 - - [23/Aug/2024 12:35:37] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:35:37] "GET / HTTP/1.1" 200 -
+HTTP request from 218.49.184.81 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/
+127.0.0.1 - - [23/Aug/2024 12:35:55] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:35:55] "GET / HTTP/1.1" 200 -
+HTTP request from 218.49.184.81 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 30.00
+Total frames to render: 339
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/ca21d4c94c40935aebde24c6ec9cb87b/annotations/video.gif
+  0%|          | 0/339 [00:00<?, ?it/s]  2%|▏         | 7/339 [00:00<00:05, 65.31it/s]  5%|▍         | 16/339 [00:00<00:04, 78.53it/s]  7%|▋         | 25/339 [00:00<00:03, 82.08it/s] 10%|█         | 34/339 [00:00<00:03, 83.97it/s] 13%|█▎        | 43/339 [00:00<00:03, 84.93it/s] 15%|█▌        | 52/339 [00:00<00:03, 85.32it/s] 18%|█▊        | 61/339 [00:00<00:03, 85.69it/s] 21%|██        | 70/339 [00:00<00:03, 86.14it/s] 23%|██▎       | 79/339 [00:00<00:03, 86.44it/s] 26%|██▌       | 88/339 [00:01<00:02, 87.05it/s] 29%|██▊       | 97/339 [00:01<00:02, 87.20it/s] 31%|███▏      | 106/339 [00:01<00:02, 87.13it/s] 34%|███▍      | 115/339 [00:01<00:02, 87.23it/s] 37%|███▋      | 124/339 [00:01<00:02, 87.37it/s] 39%|███▉      | 133/339 [00:01<00:02, 87.52it/s] 42%|████▏     | 142/339 [00:01<00:02, 87.73it/s] 45%|████▍     | 151/339 [00:01<00:02, 87.74it/s] 47%|████▋     | 160/339 [00:01<00:02, 87.97it/s] 50%|████▉     | 169/339 [00:01<00:01, 87.70it/s] 53%|█████▎    | 178/339 [00:02<00:01, 87.67it/s] 55%|█████▌    | 187/339 [00:02<00:01, 87.30it/s] 58%|█████▊    | 196/339 [00:02<00:01, 86.70it/s] 60%|██████    | 205/339 [00:02<00:01, 86.53it/s] 63%|██████▎   | 214/339 [00:02<00:01, 85.96it/s] 66%|██████▌   | 223/339 [00:02<00:01, 86.08it/s] 68%|██████▊   | 232/339 [00:02<00:01, 86.23it/s] 71%|███████   | 241/339 [00:02<00:01, 86.29it/s] 74%|███████▎  | 250/339 [00:02<00:01, 86.17it/s] 76%|███████▋  | 259/339 [00:03<00:00, 85.66it/s] 79%|███████▉  | 268/339 [00:03<00:00, 85.92it/s] 82%|████████▏ | 277/339 [00:03<00:00, 85.96it/s] 84%|████████▍ | 286/339 [00:03<00:00, 85.80it/s] 87%|████████▋ | 295/339 [00:03<00:00, 85.74it/s] 90%|████████▉ | 304/339 [00:03<00:00, 85.81it/s] 92%|█████████▏| 313/339 [00:03<00:00, 85.75it/s] 95%|█████████▍| 322/339 [00:03<00:00, 85.92it/s] 98%|█████████▊| 331/339 [00:03<00:00, 85.82it/s]100%|██████████| 339/339 [00:04<00:00, 68.69it/s]
+127.0.0.1 - - [23/Aug/2024 12:36:12] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:36:12] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 218.49.184.81 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/get_gif/ca21d4c94c40935aebde24c6ec9cb87b
+127.0.0.1 - - [23/Aug/2024 12:36:13] "GET /get_gif/ca21d4c94c40935aebde24c6ec9cb87b HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:36:13] "GET /get_gif/ca21d4c94c40935aebde24c6ec9cb87b HTTP/1.1" 200 -
+HTTP request from 218.49.184.81 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 119.88
+Total frames to render: 126
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/ca21d4c94c40935aebde24c6ec9cb87b/annotations/video.gif
+WARNING:root:Specified duration of .gif is too low, replacing with 20: 8
+  0%|          | 0/126 [00:00<?, ?it/s]  6%|▌         | 7/126 [00:00<00:01, 63.98it/s] 13%|█▎        | 16/126 [00:00<00:01, 77.89it/s] 20%|█▉        | 25/126 [00:00<00:01, 81.75it/s] 27%|██▋       | 34/126 [00:00<00:01, 84.06it/s] 34%|███▍      | 43/126 [00:00<00:00, 85.45it/s] 41%|████▏     | 52/126 [00:00<00:00, 86.31it/s] 48%|████▊     | 61/126 [00:00<00:00, 86.55it/s] 56%|█████▌    | 70/126 [00:00<00:00, 86.99it/s] 63%|██████▎   | 79/126 [00:00<00:00, 86.42it/s] 70%|██████▉   | 88/126 [00:01<00:00, 86.66it/s] 77%|███████▋  | 97/126 [00:01<00:00, 86.86it/s] 84%|████████▍ | 106/126 [00:01<00:00, 86.42it/s] 91%|█████████▏| 115/126 [00:01<00:00, 86.70it/s] 98%|█████████▊| 124/126 [00:01<00:00, 86.99it/s]100%|██████████| 126/126 [00:01<00:00, 68.29it/s]
+127.0.0.1 - - [23/Aug/2024 12:36:40] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:36:40] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/
+127.0.0.1 - - [23/Aug/2024 12:41:10] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:10] "GET / HTTP/1.1" 200 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/favicon.ico
+127.0.0.1 - - [23/Aug/2024 12:41:11] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+127.0.0.1 - - [23/Aug/2024 12:41:17] "POST /render_gif HTTP/1.1" 500 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:17] "[35m[1mPOST /render_gif HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/home/p06lab/PHYS/AnimatedDrawings/examples/server.py", line 93, in render_gif
+    resized_image = resize_image(image)
+  File "/home/p06lab/PHYS/AnimatedDrawings/examples/server.py", line 56, in resize_image
+    return img_encoded.tobytes()
+UnboundLocalError: local variable 'img_encoded' referenced before assignment
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+127.0.0.1 - - [23/Aug/2024 12:41:21] "POST /render_gif HTTP/1.1" 500 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:21] "[35m[1mPOST /render_gif HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/home/p06lab/PHYS/AnimatedDrawings/examples/server.py", line 93, in render_gif
+    resized_image = resize_image(image)
+  File "/home/p06lab/PHYS/AnimatedDrawings/examples/server.py", line 56, in resize_image
+    return img_encoded.tobytes()
+UnboundLocalError: local variable 'img_encoded' referenced before assignment
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+127.0.0.1 - - [23/Aug/2024 12:41:25] "POST /render_gif HTTP/1.1" 500 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:25] "[35m[1mPOST /render_gif HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/p06lab/miniconda3/envs/animated_drawings/lib/python3.8/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/home/p06lab/PHYS/AnimatedDrawings/examples/server.py", line 93, in render_gif
+    resized_image = resize_image(image)
+  File "/home/p06lab/PHYS/AnimatedDrawings/examples/server.py", line 56, in resize_image
+    return img_encoded.tobytes()
+UnboundLocalError: local variable 'img_encoded' referenced before assignment
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 119.88
+point [[0.304 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.304 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.304 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.304 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.304 0.48 ]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.304 0.48 ]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.22  0.476]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.22  0.476]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.124 0.504]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.124 0.504]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.044 0.604]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.044 0.604]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.388 0.484]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.388 0.484]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.484 0.504]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.484 0.504]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.564 0.612]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.564 0.612]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.252 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.252 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.24  0.164]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.24  0.164]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.22  0.028]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.22  0.028]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.356 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.356 0.3  ]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.376 0.164]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.376 0.164]] not inside or on edge of any triangle in mesh. Skipping it
+point [[0.388 0.028]] not inside or on edge of any triangle in mesh. Skipping it
+WARNING:root:point [[0.388 0.028]] not inside or on edge of any triangle in mesh. Skipping it
+Total frames to render: 126
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/8bc92cf526dadad2db887152c13fa923/annotations/video.gif
+WARNING:root:Specified duration of .gif is too low, replacing with 20: 8
+  0%|          | 0/126 [00:00<?, ?it/s]  8%|▊         | 10/126 [00:00<00:01, 99.99it/s] 19%|█▉        | 24/126 [00:00<00:00, 123.46it/s] 30%|███       | 38/126 [00:00<00:00, 130.33it/s] 41%|████▏     | 52/126 [00:00<00:00, 133.73it/s] 53%|█████▎    | 67/126 [00:00<00:00, 136.12it/s] 64%|██████▍   | 81/126 [00:00<00:00, 137.16it/s] 75%|███████▌  | 95/126 [00:00<00:00, 137.40it/s] 87%|████████▋ | 109/126 [00:00<00:00, 137.60it/s] 98%|█████████▊| 123/126 [00:00<00:00, 137.48it/s]100%|██████████| 126/126 [00:01<00:00, 96.31it/s] 
+127.0.0.1 - - [23/Aug/2024 12:41:36] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:36] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/get_gif/8bc92cf526dadad2db887152c13fa923
+127.0.0.1 - - [23/Aug/2024 12:41:37] "GET /get_gif/8bc92cf526dadad2db887152c13fa923 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:37] "GET /get_gif/8bc92cf526dadad2db887152c13fa923 HTTP/1.1" 200 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 30.00
+Total frames to render: 339
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/8bc92cf526dadad2db887152c13fa923/annotations/video.gif
+  0%|          | 0/339 [00:00<?, ?it/s]  3%|▎         | 11/339 [00:00<00:03, 103.06it/s]  7%|▋         | 25/339 [00:00<00:02, 122.01it/s] 12%|█▏        | 39/339 [00:00<00:02, 129.98it/s] 16%|█▌        | 53/339 [00:00<00:02, 133.58it/s] 20%|██        | 68/339 [00:00<00:01, 136.07it/s] 24%|██▍       | 82/339 [00:00<00:01, 137.08it/s] 28%|██▊       | 96/339 [00:00<00:01, 137.61it/s] 32%|███▏      | 110/339 [00:00<00:01, 137.73it/s] 37%|███▋      | 124/339 [00:00<00:01, 136.98it/s] 41%|████      | 138/339 [00:01<00:01, 136.62it/s] 45%|████▍     | 152/339 [00:01<00:01, 136.04it/s] 49%|████▉     | 166/339 [00:01<00:01, 135.61it/s] 53%|█████▎    | 180/339 [00:01<00:01, 136.44it/s] 57%|█████▋    | 194/339 [00:01<00:01, 136.73it/s] 61%|██████▏   | 208/339 [00:01<00:00, 136.83it/s] 65%|██████▌   | 222/339 [00:01<00:00, 136.83it/s] 70%|██████▉   | 236/339 [00:01<00:00, 137.30it/s] 74%|███████▎  | 250/339 [00:01<00:00, 137.72it/s] 78%|███████▊  | 264/339 [00:01<00:00, 138.23it/s] 82%|████████▏ | 278/339 [00:02<00:00, 138.49it/s] 86%|████████▌ | 292/339 [00:02<00:00, 138.91it/s] 90%|█████████ | 306/339 [00:02<00:00, 137.06it/s] 94%|█████████▍| 320/339 [00:02<00:00, 136.60it/s] 99%|█████████▊| 334/339 [00:02<00:00, 135.47it/s]100%|██████████| 339/339 [00:03<00:00, 96.44it/s] 
+127.0.0.1 - - [23/Aug/2024 12:41:49] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:41:49] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 30.00
+Total frames to render: 339
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/7db917fdca3b3e97ae116ffcb0f4cf21/annotations/video.gif
+  0%|          | 0/339 [00:00<?, ?it/s]  4%|▎         | 12/339 [00:00<00:02, 114.16it/s]  8%|▊         | 28/339 [00:00<00:02, 139.00it/s] 13%|█▎        | 44/339 [00:00<00:02, 147.13it/s] 18%|█▊        | 60/339 [00:00<00:01, 150.29it/s] 22%|██▏       | 76/339 [00:00<00:01, 151.37it/s] 27%|██▋       | 92/339 [00:00<00:01, 151.33it/s] 32%|███▏      | 108/339 [00:00<00:01, 150.80it/s] 37%|███▋      | 124/339 [00:00<00:01, 150.61it/s] 41%|████▏     | 140/339 [00:00<00:01, 152.01it/s] 46%|████▌     | 156/339 [00:01<00:01, 153.39it/s] 51%|█████     | 172/339 [00:01<00:01, 153.45it/s] 55%|█████▌    | 188/339 [00:01<00:00, 153.57it/s] 60%|██████    | 204/339 [00:01<00:00, 153.13it/s] 65%|██████▍   | 220/339 [00:01<00:00, 152.79it/s] 70%|██████▉   | 236/339 [00:01<00:00, 153.19it/s] 74%|███████▍  | 252/339 [00:01<00:00, 152.63it/s] 79%|███████▉  | 268/339 [00:01<00:00, 152.36it/s] 84%|████████▍ | 284/339 [00:01<00:00, 151.49it/s] 88%|████████▊ | 300/339 [00:01<00:00, 149.78it/s] 93%|█████████▎| 315/339 [00:02<00:00, 148.75it/s] 97%|█████████▋| 330/339 [00:02<00:00, 147.51it/s]100%|██████████| 339/339 [00:03<00:00, 104.09it/s]
+127.0.0.1 - - [23/Aug/2024 12:42:05] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:42:05] "POST /render_gif HTTP/1.1" 200 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/get_gif/7db917fdca3b3e97ae116ffcb0f4cf21
+127.0.0.1 - - [23/Aug/2024 12:42:06] "GET /get_gif/7db917fdca3b3e97ae116ffcb0f4cf21 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:42:06] "GET /get_gif/7db917fdca3b3e97ae116ffcb0f4cf21 HTTP/1.1" 200 -
+HTTP request from 171.224.178.183 to https://3e6883c99830d0d754e66e88ecf38f55.serveo.net/render_gif
+Original motion FPS: 119.88
+Total frames to render: 126
+ Writing video to: /home/p06lab/PHYS/AnimatedDrawings/examples/outputs/7db917fdca3b3e97ae116ffcb0f4cf21/annotations/video.gif
+WARNING:root:Specified duration of .gif is too low, replacing with 20: 8
+  0%|          | 0/126 [00:00<?, ?it/s]  9%|▊         | 11/126 [00:00<00:01, 108.74it/s] 21%|██▏       | 27/126 [00:00<00:00, 136.39it/s] 34%|███▍      | 43/126 [00:00<00:00, 143.17it/s] 46%|████▌     | 58/126 [00:00<00:00, 145.62it/s] 59%|█████▊    | 74/126 [00:00<00:00, 148.18it/s] 71%|███████▏  | 90/126 [00:00<00:00, 150.15it/s] 84%|████████▍ | 106/126 [00:00<00:00, 151.31it/s] 97%|█████████▋| 122/126 [00:00<00:00, 151.81it/s]100%|██████████| 126/126 [00:01<00:00, 109.62it/s]
+127.0.0.1 - - [23/Aug/2024 12:42:18] "POST /render_gif HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 12:42:18] "POST /render_gif HTTP/1.1" 200 -
+[33mPort forwarding for 3e6883c99830d0d754e66e88ecf38f55.serveo.net expired
+[0m
