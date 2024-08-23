@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Render GIF từ Ảnh</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        #loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Render GIF từ Ảnh</h1>
+    <form id="uploadForm">
+        <input type="file" id="imageInput" accept="image/*" required>
+        <button type="submit">Tạo GIF</button>
+    </form>
+    <div id="loading">Đang xử lý, vui lòng đợi...</div>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var formData = new FormData();
+            var imageFile = document.getElementById('imageInput').files[0];
+            formData.append('image', imageFile);
+
+            var loading = document.getElementById('loading');
+            var result = document.getElementById('result');
+
+            loading.style.display = 'block';
+            result.innerHTML = '';
+
+            fetch('/render_gif', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                result.innerHTML = `
+                    <h2>GIF đã tạo:</h2>
+                    <img src="${data.gif_url}" alt="Rendered GIF">
+                    <p>Thời gian render: ${data.render_time} giây</p>
+                `;
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                result.innerHTML = '<p>Có lỗi xảy ra: ' + error.message + '</p>';
+            });
+        });
+    </script>
+</body>
+</html>

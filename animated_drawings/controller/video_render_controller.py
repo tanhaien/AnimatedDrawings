@@ -175,38 +175,17 @@ class GIFWriter(VideoWriter):
         """ Reorder channels and save frames as they arrive"""
         self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA).astype(np.uint8))
 
-    def interpolate_frame(self, frame1: npt.NDArray[np.uint8], frame2: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
-        """ Interpolate between two frames """
-        return cv2.addWeighted(frame1, 0.5, frame2, 0.5, 0)
-        
-
-    def interpolate_frames_parallel(self, frames):
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            interpolated_frames = list(executor.map(self.interpolate_frame, frames[:-1], frames[1:]))
-        return interpolated_frames
-
     def cleanup(self) -> None:
         """ Write all frames to output path specified."""
         self.output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
         
-        # Interpolate frames in parallel
-        interpolated_frames = self.interpolate_frames_parallel(self.frames)
-        
-        # Interleave original and interpolated frames
-        final_frames = []
-        for i in range(len(self.frames) - 1):
-            final_frames.append(self.frames[i])
-            final_frames.append(interpolated_frames[i])
-        final_frames.append(self.frames[-1])  # Add the last frame
-        
         # Convert to PIL Images in parallel
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            ims = list(executor.map(Image.fromarray, final_frames))
+            ims = list(executor.map(Image.fromarray, self.frames))
         
         # Save GIF
         ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
-
 
 class MP4Writer(VideoWriter):
     """ Video writer for creating mp4 videos with cv2.VideoWriter """
