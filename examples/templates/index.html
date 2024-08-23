@@ -1,31 +1,73 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Render GIF từ Ảnh</title>
+    <title>Animated Drawings</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f0f0f0;
         }
-        #result {
-            margin-top: 20px;
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input[type="file"], select, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
         }
         #loading {
             display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #result img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
-    <h1>Render GIF từ Ảnh</h1>
+    <h1>Animated Drawings</h1>
     <form id="uploadForm">
         <input type="file" id="imageInput" accept="image/*" required>
-        <button type="submit">Tạo GIF</button>
+        <select id="motionSelect">
+            {% for motion in motions %}
+            <option value="{{ motion }}">{{ motion }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Create GIF</button>
     </form>
-    <div id="loading">Đang xử lý, vui lòng đợi...</div>
+    <div id="loading">Processing, please wait...</div>
     <div id="result"></div>
 
     <script>
@@ -35,6 +77,9 @@
             var formData = new FormData();
             var imageFile = document.getElementById('imageInput').files[0];
             formData.append('image', imageFile);
+
+            var motionSelect = document.getElementById('motionSelect');
+            formData.append('motion', motionSelect.value);
 
             var loading = document.getElementById('loading');
             var result = document.getElementById('result');
@@ -50,14 +95,14 @@
             .then(data => {
                 loading.style.display = 'none';
                 result.innerHTML = `
-                    <h2>GIF đã tạo:</h2>
+                    <h2>Generated GIF:</h2>
                     <img src="${data.gif_url}" alt="Rendered GIF">
-                    <p>Thời gian render: ${data.render_time} giây</p>
+                    <p>Render time: ${data.render_time} seconds</p>
                 `;
             })
             .catch(error => {
                 loading.style.display = 'none';
-                result.innerHTML = '<p>Có lỗi xảy ra: ' + error.message + '</p>';
+                result.innerHTML = '<p>An error occurred: ' + error.message + '</p>';
             });
         });
     </script>
